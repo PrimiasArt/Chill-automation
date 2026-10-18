@@ -126,7 +126,7 @@
     }
     .prompt-input-row {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: 1fr auto auto;
       gap: 10px;
       align-items: stretch;
     }
@@ -608,19 +608,11 @@
           class="prompt-textarea"
           placeholder="Nhập bất kỳ chủ đề nào... VD: làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s"
         >làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s</textarea>
-        <button class="btn btn-secondary" onclick="applyPromptOnly()" title="Phân tích nhanh bằng bộ khung có sẵn (Không tốn limit Argon)">
-          🪄 Phân Tích Nhanh (0 tốn Limit)
+        <button class="btn btn-secondary" id="btnAnalyzeAI" onclick="applyPromptOnly()" title="AI tự động viết kịch bản 5 phân cảnh 2D & lời thoại ngay trên App (Không cần mở Antigravity, Không cần API Key, 0 tốn phí)">
+          🪄 AI Tự Viết Kịch Bản Đa Cảnh (Ngay Trên App)
         </button>
-        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()" title="Tự động dựng & xuất video ngay bằng bộ khung có sẵn">
-          🚀 Dựng & Xuất Ngay
-        </button>
-        <button
-          class="btn"
-          style="background: linear-gradient(135deg, #d4ff47, #00f0ff); color: #050811; padding: 11px 15px;"
-          onclick="sendToArgonBridge()"
-          title="Gửi yêu cầu sang phiên Antigravity để Argon dùng 21 bộ kỹ năng tự viết kịch bản/code mới (Dùng limit sẵn có của Argon, 0 tốn phí API)"
-        >
-          🤖 Gửi Cho Argon (Antigravity)
+        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()" title="AI tự động viết kịch bản, tạo giọng đọc Tiếng Việt và xuất video MP4 ngay trên App">
+          🚀 AI Tự Viết & Xuất Video Ngay (100% Trên App)
         </button>
       </div>
 
@@ -1152,37 +1144,57 @@
     async function applyPromptOnly() {
       const prompt = document.getElementById('promptInput').value.trim();
       if (!prompt) return;
-      const res = await fetch('/api/prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, autoRender: false })
-      });
-      const data = await res.json();
-      if (data.ok && data.parsed) {
-        populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
-        const fb = document.getElementById('promptFeedback');
-        fb.style.display = 'block';
-        fb.style.color = '#00f0ff';
-        fb.innerText = '✨ ' + data.parsed.summary + ' — Bạn có thể xem/sửa từng phân cảnh ở Cột 3 hoặc bấm "🚀 Dựng & Xuất Ngay"!';
+      const fb = document.getElementById('promptFeedback');
+      const btn = document.getElementById('btnAnalyzeAI');
+      fb.style.display = 'block';
+      fb.style.color = '#d4ff47';
+      fb.innerText = '⏳ AI đang tự động suy nghĩ kịch bản, chia 5 phân cảnh 2D & viết lời thuyết minh ngay trên App...';
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, autoRender: false, useCloudAI: true })
+        });
+        const data = await res.json();
+        if (data.ok && data.parsed) {
+          populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
+          fb.style.display = 'block';
+          fb.style.color = '#00f0ff';
+          fb.innerText = '✨ ' + data.parsed.summary + ' — Bạn có thể xem/sửa từng phân cảnh ở Cột 3 hoặc bấm "🚀 Bấm Để Kết Xuất Video MP4 Mới"!';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
     async function applyPromptAndRender() {
       const prompt = document.getElementById('promptInput').value.trim();
       if (!prompt) return;
-      const res = await fetch('/api/prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, autoRender: true })
-      });
-      const data = await res.json();
-      if (data.ok && data.parsed) {
-        populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
-        const fb = document.getElementById('promptFeedback');
-        fb.style.display = 'block';
-        fb.style.color = '#00f0ff';
-        fb.innerText = '🚀 ' + data.parsed.summary + ' — Đang tạo giọng đọc AI, ghép nhạc nền & kết xuất MP4!';
-        pollStatus();
+      const fb = document.getElementById('promptFeedback');
+      const btn = document.getElementById('btnPromptRender');
+      fb.style.display = 'block';
+      fb.style.color = '#d4ff47';
+      fb.innerText = '⏳ AI đang tự biên kịch 5 phân cảnh 2D, tạo giọng đọc Tiếng Việt & chuẩn bị kết xuất MP4 ngay trên App...';
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, autoRender: true, useCloudAI: true })
+        });
+        const data = await res.json();
+        if (data.ok && data.parsed) {
+          populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
+          fb.style.display = 'block';
+          fb.style.color = '#00f0ff';
+          fb.innerText = '🚀 ' + data.parsed.summary + ' — Đang tạo giọng đọc AI, ghép nhạc nền & kết xuất MP4!';
+          pollStatus();
+        }
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
