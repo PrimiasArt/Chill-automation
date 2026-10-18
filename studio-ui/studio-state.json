@@ -1,0 +1,107 @@
+{
+  "UniversalVideo": {
+    "outputFile": "huong-dan-agent-github-2d.mp4",
+    "giongDoc": "vi-VN-HoaiMyNeural",
+    "props": {
+      "theLoai": "cong-nghe",
+      "tieuDeChinh": "Hướng Dẫn Cài Đặt Agent Từ GitHub A → Z",
+      "tenKenh": "HƯỚNG DẪN AI TRỰC QUAN · 2D MOTION",
+      "loiThoai": "Chào các bạn! Hôm nay mình sẽ hướng dẫn cách cài đặt bộ Agent kỹ năng từ GitHub cực kỳ dễ hiểu và trực quan. Bước một, mở kho lưu trữ GitHub cần dùng, bấm vào nút Code màu xanh lá và sao chép đường dẫn dự án. Bước hai, mở cửa sổ Terminal trong thư mục dự án của bạn và gõ lệnh git clone để tải toàn bộ bộ kỹ năng về thư mục chấm agents xược skills. Bước ba, chạy lệnh npm install để máy tự động cài đặt đầy đủ các thư viện đồ họa và âm thanh đi kèm. Bước bốn, kiểm tra danh sách kỹ năng đã được nạp tự động thông qua các file SKILL chấm md và AGENTS chấm md. Bước năm, mọi thứ đã sẵn sàng! Giờ bạn chỉ cần nhập yêu cầu bằng tiếng Việt trên giao diện và để Agent tự động làm việc từ A đến Z!",
+      "batGiongDoc": true,
+      "kieuNhacNen": "chill",
+      "batNhacNen": true,
+      "thoiLuongGiay": 60,
+      "mauChuDao": "#d4ff47",
+      "mauPhu": "#00f0ff",
+      "mauNen": "#0b0f19",
+      "hienThi3D": false,
+      "cacPhanCanh": [
+        {
+          "nhanPhu": "BƯỚC 01 // TÌM REPO",
+          "tieuDeCanh": "1. Tìm & Sao Chép Link GitHub",
+          "noiDungCanh": "Truy cập trang GitHub chứa bộ Agent Skills cần dùng và copy đường dẫn HTTPS của repository.",
+          "loaiMinhHoa2D": "flowchart",
+          "duLieuMinhHoa": [
+            "Truy cập github.com/remotion-dev/skills",
+            "Bấm nút Code (Màu xanh lá) → Copy HTTPS link",
+            "Chuẩn bị sẵn Git & Node.js trên máy tính"
+          ]
+        },
+        {
+          "nhanPhu": "BƯỚC 02 // CLONE VỀ MÁY",
+          "tieuDeCanh": "2. Tải Bộ Agent Về Thư Mục Dự Án",
+          "noiDungCanh": "Mở Terminal trong thư mục làm việc và chạy lệnh git clone để kéo toàn bộ kỹ năng về máy.",
+          "loaiMinhHoa2D": "terminal",
+          "duLieuMinhHoa": [
+            "$ mkdir -p .agents/skills",
+            "$ git clone https://github.com/remotion-dev/skills.git",
+            "✓ Đã tải xong 21 bộ kỹ năng chuẩn SKILL.md!"
+          ]
+        },
+        {
+          "nhanPhu": "BƯỚC 03 // CÀI THƯ VIỆN",
+          "tieuDeCanh": "3. Cài Đặt Các Gói Thư Viện Đi Kèm",
+          "noiDungCanh": "Chạy lệnh npm install để hệ thống tự động tải và liên kết tất cả các công cụ cần thiết.",
+          "loaiMinhHoa2D": "progress",
+          "duLieuMinhHoa": [
+            "Cài đặt Core Video Engine",
+            "Tích hợp Animation 2D & Vector",
+            "Cấu hình Audio TTS & FFmpeg",
+            "Hoàn tất 100%"
+          ]
+        },
+        {
+          "nhanPhu": "BƯỚC 04 // CẤU HÌNH AGENT",
+          "tieuDeCanh": "4. Kiểm Tra Danh Sách Kỹ Năng Agent",
+          "noiDungCanh": "Hệ thống tự động quét thư mục .agents/skills và nạp hướng dẫn SKILL.md vào bộ nhớ.",
+          "loaiMinhHoa2D": "checklist",
+          "duLieuMinhHoa": [
+            "Tự động nhận diện thư mục .agents/skills/",
+            "Đọc file quy chuẩn AGENTS.md ở thư mục gốc",
+            "Kích hoạt quy trình tự động thực thi từng bước"
+          ]
+        },
+        {
+          "nhanPhu": "BƯỚC 05 // SỬ DỤNG NGAY",
+          "tieuDeCanh": "5. Ra Lệnh & Tận Hưởng Kết Quả!",
+          "noiDungCanh": "Giờ bạn chỉ cần nhập yêu cầu bằng tiếng Việt, Agent sẽ tự động làm việc từ A đến Z!",
+          "loaiMinhHoa2D": "cards",
+          "duLieuMinhHoa": [
+            "🚀 Không cần nhớ câu lệnh phức tạp",
+            "🎨 Tự động thiết kế, dựng hình 2D/3D & lồng tiếng",
+            "✅ Xuất file MP4 hoàn chỉnh chỉ với 1 nút bấm!"
+          ]
+        }
+      ]
+    }
+  },
+  "MechaCatDance": {
+    "outputFile": "mecha-cat-dance.mp4",
+    "giongDoc": "vi-VN-HoaiMyNeural",
+    "props": {
+      "nhanVat3D": "meo-mecha",
+      "kieuNhay": "disco",
+      "hieuUngDacBiet": "canh-nang-luong",
+      "tenSieuNhan": "MECHA NEKO-X9",
+      "khauHieu": "Siêu Nhân Mèo Mecha · Quẩy Cực Sung!",
+      "loiThoai": "Xin chào các bạn! Mình là Mèo Siêu Nhân Mecha đây, cùng quẩy thật sung nhé!",
+      "batGiongDoc": true,
+      "mauGiapChinh": "#cbd5e1",
+      "mauNangLuong": "#00f0ff",
+      "mauAoChoang": "#ff0055",
+      "tocDoNhay": 1
+    }
+  },
+  "Argon20ReposReady": {
+    "outputFile": "argon-20-repos.mp4",
+    "props": {
+      "tieuDeChinh": "20 repo GitHub",
+      "tieuDePhu": "Argon tự làm video A → Z",
+      "dongGhiChu": "> /skills · gemini-4-argon",
+      "mauChuDao": "#d4ff47",
+      "mauNen": "#0a0a0a",
+      "tocDoXoay3D": 1,
+      "hienThi3D": true
+    }
+  }
+}

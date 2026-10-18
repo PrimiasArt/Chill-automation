@@ -1,0 +1,27 @@
+20 repo theo từng lớp:
+Agent skills
+1. Remotion Skills: github.com/remotion-dev/skills
+2. Motion AI Kit: github.com/motiondivision/ai-kit
+3. GSAP Skills: github.com/greensock/gsap-skills
+Design
+4. SVGO: github.com/svg/svgo
+5. Satori: github.com/vercel/satori
+Animation
+6. GSAP: github.com/greensock/GSAP
+7. Anime.js: github.com/juliangarnier/anime
+8. Motion: github.com/motiondivision/motion
+9. Rive: github.com/rive-app/rive-wasm
+10. dotLottie: github.com/LottieFiles/dotlottie-web
+Video
+11. Remotion: github.com/remotion-dev/remotion
+12. Motion Canvas: github.com/motion-canvas/motion-canvas
+3D
+13. Three.js: github.com/mrdoob/three.js
+14. React Three Fiber: github.com/pmndrs/react-three-fiber
+15. Drei: github.com/pmndrs/drei
+16. React Three Rapier: github.com/pmndrs/react-three-rapier
+17. React Postprocessing: github.com/pmndrs/react-postprocessing
+Âm thanh và xuất bản
+18. Howler.js: github.com/goldfire/howler.js
+19. Mediabunny: github.com/Vanilagy/mediabunny
+20. FFmpeg: github.com/FFmpeg/FFmpeg
