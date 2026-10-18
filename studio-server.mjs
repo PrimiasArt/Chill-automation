@@ -747,7 +747,9 @@ const server = http.createServer((req, res) => {
         ? "image/svg+xml"
         : ext === ".mp3"
           ? "audio/mpeg"
-          : "application/octet-stream";
+          : ext === ".ico"
+            ? "image/x-icon"
+            : "application/octet-stream";
     serveStaticFile(res, filePath, mime);
     return;
   }

@@ -13,7 +13,7 @@ cd Chill-automation
 ```
 
 ### Bước 2: Cài đặt & Mở Bàn Làm Việc
-- **Trên Windows:** Nháy đúp vào file **`Cai-Dat-Tren-May-Moi.bat`** (tự động cài đặt toàn bộ thư viện và mở giao diện Web).
+- **Trên Windows (Khuyên dùng):** Nháy đúp vào ứng dụng **`ChillStudio.exe`** (có sẵn Logo Neon & giao diện điều khiển riêng, tự động kiểm tra/cài đặt toàn bộ thư viện `node_modules` và mở trình duyệt Web, đồng thời có nút **📌 Tạo Icon Ra Màn Hình Desktop**).
 - **Hoặc chạy bằng dòng lệnh (Windows / macOS / Linux):**
   ```bash
   npm install --legacy-peer-deps
