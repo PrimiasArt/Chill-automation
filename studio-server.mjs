@@ -11,10 +11,12 @@ const __dirname = path.dirname(__filename);
 const PORT = 4000;
 const OUT_DIR = path.join(__dirname, "out");
 const PUBLIC_DIR = path.join(__dirname, "public");
+const SCENE_IMG_DIR = path.join(PUBLIC_DIR, "scene-images");
 const UI_FILE = path.join(__dirname, "studio-ui", "index.html");
 const STATE_FILE = path.join(__dirname, "studio-ui", "studio-state.json");
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
+fs.mkdirSync(SCENE_IMG_DIR, { recursive: true });
 fs.mkdirSync(path.join(__dirname, "studio-ui"), { recursive: true });
 
 try {
@@ -39,81 +41,199 @@ function getLanIp() {
   return "localhost";
 }
 
-const DEFAULT_GITHUB_AGENT_SCENES = [
-  {
-    nhanPhu: "BƯỚC 01 // TÌM REPO",
-    tieuDeCanh: "1. Tìm & Sao Chép Link GitHub",
-    noiDungCanh:
-      "Truy cập trang GitHub chứa bộ Agent Skills cần dùng và copy đường dẫn HTTPS của repository.",
-    loaiMinhHoa2D: "flowchart",
-    duLieuMinhHoa: [
-      "Truy cập github.com/remotion-dev/skills",
-      "Bấm nút Code (Màu xanh lá) → Copy HTTPS link",
-      "Chuẩn bị sẵn Git & Node.js trên máy tính",
-    ],
-  },
-  {
-    nhanPhu: "BƯỚC 02 // CLONE VỀ MÁY",
-    tieuDeCanh: "2. Tải Bộ Agent Về Thư Mục Dự Án",
-    noiDungCanh:
-      "Mở Terminal trong thư mục làm việc và chạy lệnh git clone để kéo toàn bộ kỹ năng về máy.",
-    loaiMinhHoa2D: "terminal",
-    duLieuMinhHoa: [
-      "$ mkdir -p .agents/skills",
-      "$ git clone https://github.com/remotion-dev/skills.git",
-      "✓ Đã tải xong 21 bộ kỹ năng chuẩn SKILL.md!",
-    ],
-  },
-  {
-    nhanPhu: "BƯỚC 03 // CÀI THƯ VIỆN",
-    tieuDeCanh: "3. Cài Đặt Các Gói Thư Viện Đi Kèm",
-    noiDungCanh:
-      "Chạy lệnh npm install để hệ thống tự động tải và liên kết tất cả các công cụ cần thiết.",
-    loaiMinhHoa2D: "progress",
-    duLieuMinhHoa: [
-      "Cài đặt Core Video Engine",
-      "Tích hợp Animation 2D & Vector",
-      "Cấu hình Audio TTS & FFmpeg",
-      "Hoàn tất 100%",
-    ],
-  },
-  {
-    nhanPhu: "BƯỚC 04 // CẤU HÌNH AGENT",
-    tieuDeCanh: "4. Kiểm Tra Danh Sách Kỹ Năng Agent",
-    noiDungCanh:
-      "Hệ thống tự động quét thư mục .agents/skills và nạp hướng dẫn SKILL.md vào bộ nhớ.",
-    loaiMinhHoa2D: "checklist",
-    duLieuMinhHoa: [
-      "Tự động nhận diện thư mục .agents/skills/",
-      "Đọc file quy chuẩn AGENTS.md ở thư mục gốc",
-      "Kích hoạt quy trình tự động thực thi từng bước",
-    ],
-  },
-  {
-    nhanPhu: "BƯỚC 05 // SỬ DỤNG NGAY",
-    tieuDeCanh: "5. Ra Lệnh & Tận Hưởng Kết Quả!",
-    noiDungCanh:
-      "Giờ bạn chỉ cần nhập yêu cầu bằng tiếng Việt, Agent sẽ tự động làm việc từ A đến Z!",
-    loaiMinhHoa2D: "cards",
-    duLieuMinhHoa: [
-      "🚀 Không cần nhớ câu lệnh phức tạp",
-      "🎨 Tự động thiết kế, dựng hình 2D/3D & lồng tiếng",
-      "✅ Xuất file MP4 hoàn chỉnh chỉ với 1 nút bấm!",
-    ],
-  },
-];
+function escapeXml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
+/**
+ * Generates a unique, topic-tailored 2D Cartoon Vector Illustration SVG for each scene
+ * so every scene has its own custom artwork (never reusing unrelated templates).
+ */
+function generateCustom2DSceneSvg(scene, idx, totalScenes, mauChuDao, mauPhu, topicTitle) {
+  const title = escapeXml((scene.tieuDeCanh || `Cảnh ${idx + 1}`).slice(0, 48));
+  const sub = escapeXml((scene.noiDungCanh || "").slice(0, 75));
+  const badge = escapeXml(scene.nhanPhu || `CẢNH 0${idx + 1} / 0${totalScenes}`);
+  const items = Array.isArray(scene.duLieuMinhHoa) ? scene.duLieuMinhHoa.slice(0, 3) : [];
+  const lowerText = `${scene.tieuDeCanh} ${scene.noiDungCanh} ${topicTitle}`.toLowerCase();
+
+  // Choose custom 2D vector character/object illustration based on scene semantics & index
+  let centerArtwork = "";
+  if (lowerText.includes("github") || lowerText.includes("code") || lowerText.includes("git") || lowerText.includes("terminal") || lowerText.includes("lệnh")) {
+    centerArtwork = `
+      <!-- 2D Cartoon Laptop + Code Window + Mascot -->
+      <rect x="470" y="55" width="290" height="190" rx="18" fill="#0f172a" stroke="${mauChuDao}" stroke-width="4"/>
+      <rect x="470" y="55" width="290" height="34" rx="14" fill="#1e293b"/>
+      <circle cx="494" cy="72" r="6" fill="#ef4444"/>
+      <circle cx="514" cy="72" r="6" fill="#facc15"/>
+      <circle cx="534" cy="72" r="6" fill="#22c55e"/>
+      <text x="492" y="122" fill="${mauChuDao}" font-family="monospace" font-size="18" font-weight="bold">$ git clone repo.git</text>
+      <text x="492" y="154" fill="${mauPhu}" font-family="monospace" font-size="17">&gt; Installing skills...</text>
+      <rect x="492" y="176" width="210" height="14" rx="7" fill="#1e293b"/>
+      <rect x="492" y="176" width="${80 + (idx * 35) % 130}" height="14" rx="7" fill="${mauChuDao}"/>
+      <path d="M440 245 L790 245 L765 268 L465 268 Z" fill="#334155" stroke="${mauPhu}" stroke-width="3"/>
+    `;
+  } else if (idx % 4 === 0) {
+    centerArtwork = `
+      <!-- 2D Cartoon Explorer / Idea Bulb & Rocket Scene -->
+      <circle cx="620" cy="155" r="88" fill="${mauChuDao}22" stroke="${mauChuDao}" stroke-width="3" stroke-dasharray="10 6"/>
+      <circle cx="620" cy="155" r="62" fill="#1e293b" stroke="${mauPhu}" stroke-width="4"/>
+      <path d="M620 105 L638 142 L678 148 L648 176 L656 215 L620 196 L584 215 L592 176 L562 148 L602 142 Z" fill="${mauChuDao}"/>
+      <circle cx="515" cy="95" r="14" fill="${mauPhu}"/>
+      <circle cx="725" cy="210" r="18" fill="${mauChuDao}"/>
+    `;
+  } else if (idx % 4 === 1) {
+    centerArtwork = `
+      <!-- 2D Cartoon Connected Workflow Nodes -->
+      <rect x="465" y="70" width="130" height="75" rx="16" fill="#1e293b" stroke="${mauChuDao}" stroke-width="4"/>
+      <text x="530" y="115" text-anchor="middle" fill="${mauChuDao}" font-family="sans-serif" font-size="22" font-weight="900">BƯỚC ${idx}</text>
+      <path d="M595 108 L645 165" stroke="${mauPhu}" stroke-width="5" stroke-linecap="round"/>
+      <rect x="635" y="145" width="135" height="80" rx="16" fill="#1e293b" stroke="${mauPhu}" stroke-width="4"/>
+      <text x="702" y="192" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="22" font-weight="900">BƯỚC ${idx + 1}</text>
+      <circle cx="618" cy="135" r="12" fill="${mauChuDao}"/>
+    `;
+  } else if (idx % 4 === 2) {
+    centerArtwork = `
+      <!-- 2D Cartoon Visual Analytics & Growth Chart -->
+      <rect x="470" y="65" width="290" height="190" rx="20" fill="#111827" stroke="${mauPhu}" stroke-width="3"/>
+      <rect x="505" y="175" width="38" height="55" rx="8" fill="${mauPhu}"/>
+      <rect x="565" y="140" width="38" height="90" rx="8" fill="${mauChuDao}"/>
+      <rect x="625" y="105" width="38" height="125" rx="8" fill="${mauPhu}"/>
+      <rect x="685" y="82" width="38" height="148" rx="8" fill="${mauChuDao}"/>
+      <path d="M510 155 L580 120 L640 92 L705 70" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="705" cy="70" r="9" fill="${mauChuDao}"/>
+    `;
+  } else {
+    centerArtwork = `
+      <!-- 2D Cartoon Trophy / Completion Shield -->
+      <circle cx="620" cy="155" r="85" fill="${mauPhu}22" stroke="${mauPhu}" stroke-width="3"/>
+      <polygon points="620,75 685,110 670,195 620,235 570,195 555,110" fill="#1e293b" stroke="${mauChuDao}" stroke-width="4"/>
+      <path d="M592 155 L612 176 L652 132" fill="none" stroke="${mauChuDao}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    `;
+  }
+
+  const itemTags = items
+    .map((it, i) => {
+      const y = 135 + i * 52;
+      const text = escapeXml(String(it).slice(0, 42));
+      return `
+        <rect x="34" y="${y}" width="405" height="40" rx="10" fill="#162038" stroke="${i % 2 === 0 ? mauChuDao : mauPhu}" stroke-width="2"/>
+        <text x="52" y="${y + 26}" fill="#f8fafc" font-family="Segoe UI, sans-serif" font-size="17" font-weight="700">${text}</text>
+      `;
+    })
+    .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320">
+    <defs>
+      <linearGradient id="bgGrad${idx}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0b1120"/>
+        <stop offset="60%" stop-color="#111c35"/>
+        <stop offset="100%" stop-color="#090d16"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="320" rx="22" fill="url(#bgGrad${idx})"/>
+    <circle cx="720" cy="40" r="140" fill="${mauChuDao}" opacity="0.08"/>
+    <circle cx="120" cy="280" r="160" fill="${mauPhu}" opacity="0.08"/>
+
+    <!-- Scene Badge & Title on Left -->
+    <rect x="34" y="28" width="185" height="32" rx="16" fill="${mauChuDao}"/>
+    <text x="126" y="49" text-anchor="middle" fill="#050811" font-family="monospace" font-size="15" font-weight="900">${badge}</text>
+
+    <text x="34" y="92" fill="#ffffff" font-family="Segoe UI, sans-serif" font-size="23" font-weight="900">${title}</text>
+    <text x="34" y="118" fill="#94a3b8" font-family="Segoe UI, sans-serif" font-size="14" font-weight="600">${sub}</text>
+
+    ${itemTags}
+    ${centerArtwork}
+  </svg>`;
+}
+
+/**
+ * Creates 2D illustration files in public/scene-images/ for every scene in cacPhanCanh.
+ * Optionally fetches AI raster illustrations if requested.
+ */
+async function attachSceneIllustrations(props, tryCloudImage = false) {
+  const scenes = Array.isArray(props.cacPhanCanh) ? props.cacPhanCanh : [];
+  const batchId = Date.now();
+  const mauChuDao = props.mauChuDao || "#d4ff47";
+  const mauPhu = props.mauPhu || "#00f0ff";
+  const topicTitle = props.tieuDeChinh || "Video 2D";
+
+  // Clean up old generated scene images so folder stays light
+  try {
+    const oldFiles = fs.readdirSync(SCENE_IMG_DIR);
+    if (oldFiles.length > 40) {
+      for (const f of oldFiles.slice(0, oldFiles.length - 20)) {
+        fs.unlinkSync(path.join(SCENE_IMG_DIR, f));
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  await Promise.all(
+    scenes.map(async (sc, idx) => {
+      // If user requested AI raster image and moTaHinhAnhEn exists
+      if (tryCloudImage) {
+        try {
+          const promptEn =
+            sc.moTaHinhAnhEn ||
+            `2d flat vector cartoon illustration of ${sc.tieuDeCanh}, vibrant neon colors, clean minimal explainer art`;
+          const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptEn)}?width=800&height=360&nologo=true&seed=${batchId + idx}`;
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 7500);
+          const res = await fetch(imgUrl, { signal: ctrl.signal });
+          clearTimeout(t);
+          if (res.ok && (res.headers.get("content-type") || "").includes("image")) {
+            const arrayBuf = await res.arrayBuffer();
+            const buf = Buffer.from(arrayBuf);
+            if (buf.length > 4000) {
+              const fileName = `scene-${batchId}-${idx + 1}.jpg`;
+              fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), buf);
+              sc.hinhAnhCanh = `scene-images/${fileName}`;
+              return;
+            }
+          }
+        } catch {
+          // fallback to crisp custom 2D vector SVG below
+        }
+      }
+
+      // Generate custom 2D Vector Cartoon SVG tailored to this exact scene
+      const svgContent = generateCustom2DSceneSvg(
+        sc,
+        idx,
+        scenes.length,
+        mauChuDao,
+        mauPhu,
+        topicTitle,
+      );
+      const svgFileName = `scene-${batchId}-${idx + 1}.svg`;
+      fs.writeFileSync(path.join(SCENE_IMG_DIR, svgFileName), svgContent, "utf8");
+      sc.hinhAnhCanh = `scene-images/${svgFileName}`;
+    }),
+  );
+
+  return props;
+}
+
+/**
+ * Clean, empty initial state (no template forced by default!)
+ */
 const DEFAULT_STATE = {
   UniversalVideo: {
-    outputFile: "huong-dan-agent-github-2d.mp4",
+    outputFile: "video-sang-tao-moi.mp4",
     giongDoc: "vi-VN-HoaiMyNeural",
     props: {
-      theLoai: "cong-nghe",
-      tieuDeChinh: "Hướng Dẫn Cài Đặt Agent Từ GitHub A → Z",
-      tenKenh: "CHILL AUTOMATION STUDIO",
-      loiThoai:
-        "Chào các bạn! Hôm nay mình sẽ hướng dẫn cách cài đặt bộ Agent kỹ năng từ GitHub cực kỳ dễ hiểu và trực quan. Bước một, mở kho lưu trữ GitHub cần dùng, bấm vào nút Code màu xanh lá và sao chép đường dẫn dự án. Bước hai, mở cửa sổ Terminal trong thư mục dự án của bạn và gõ lệnh git clone để tải toàn bộ bộ kỹ năng về thư mục chấm agents xược skills. Bước ba, chạy lệnh npm install để máy tự động cài đặt đầy đủ các thư viện đồ họa và âm thanh đi kèm. Bước bốn, kiểm tra danh sách kỹ năng đã được nạp tự động thông qua các file SKILL chấm md và AGENTS chấm md. Bước năm, mọi thứ đã sẵn sàng! Giờ bạn chỉ cần nhập yêu cầu bằng tiếng Việt trên giao diện và để Agent tự động làm việc từ A đến Z!",
+      theLoai: "kien-thuc",
+      tieuDeChinh: "",
+      tenKenh: "CHILL ARGON STUDIO · 2D MOTION",
+      loiThoai: "",
       batGiongDoc: true,
+      batPhuDe: true,
       kieuNhacNen: "chill",
       batNhacNen: true,
       thoiLuongGiay: 60,
@@ -121,11 +241,11 @@ const DEFAULT_STATE = {
       mauPhu: "#00f0ff",
       mauNen: "#0b0f19",
       hienThi3D: false,
-      cacPhanCanh: DEFAULT_GITHUB_AGENT_SCENES,
+      cacPhanCanh: [],
     },
   },
   MechaCatDance: {
-    outputFile: "mecha-cat-dance.mp4",
+    outputFile: "nhan-vat-3d.mp4",
     giongDoc: "vi-VN-HoaiMyNeural",
     props: {
       nhanVat3D: "meo-mecha",
@@ -136,84 +256,32 @@ const DEFAULT_STATE = {
       loiThoai:
         "Xin chào các bạn! Mình là Mèo Siêu Nhân Mecha đây, cùng quẩy thật sung nhé!",
       batGiongDoc: true,
+      batPhuDe: true,
       mauGiapChinh: "#cbd5e1",
       mauNangLuong: "#00f0ff",
       mauAoChoang: "#ff0055",
       tocDoNhay: 1,
     },
   },
-  Argon20ReposReady: {
-    outputFile: "argon-20-repos.mp4",
-    props: {
-      tieuDeChinh: "20 repo GitHub",
-      tieuDePhu: "Argon tự làm video A → Z",
-      dongGhiChu: "> /skills · gemini-4-argon",
-      mauChuDao: "#d4ff47",
-      mauNen: "#0a0a0a",
-      tocDoXoay3D: 1,
-      hienThi3D: true,
-    },
-  },
 };
 
-function loadState() {
-  try {
-    if (fs.existsSync(STATE_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
-      return {
-        UniversalVideo: {
-          ...DEFAULT_STATE.UniversalVideo,
-          ...(parsed.UniversalVideo || {}),
-          props: {
-            ...DEFAULT_STATE.UniversalVideo.props,
-            ...(parsed.UniversalVideo?.props || {}),
-          },
-        },
-        MechaCatDance: {
-          ...DEFAULT_STATE.MechaCatDance,
-          ...(parsed.MechaCatDance || {}),
-          props: {
-            ...DEFAULT_STATE.MechaCatDance.props,
-            ...(parsed.MechaCatDance?.props || {}),
-          },
-        },
-        Argon20ReposReady: {
-          ...DEFAULT_STATE.Argon20ReposReady,
-          ...(parsed.Argon20ReposReady || {}),
-          props: {
-            ...DEFAULT_STATE.Argon20ReposReady.props,
-            ...(parsed.Argon20ReposReady?.props || {}),
-          },
-        },
-      };
-    }
-  } catch {
-    // fallback
-  }
-  return DEFAULT_STATE;
-}
-
-function saveState(state) {
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), "utf8");
-}
-
-let studioState = loadState();
+let studioState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
 let renderJob = {
   isRendering: false,
   compositionId: null,
-  progress: 100,
-  stage: "ship ✓ Sẵn sàng phát và tải về",
+  progress: 0,
+  stage: "Sẵn sàng — Hãy nhập Prompt để AI sáng tạo kịch bản & hình ảnh mới",
   lastError: null,
-  outputUrl: "/out/cho-shiba-hiphop.mp4",
-  updatedAt: Date.now(),
+  outputUrl: null,
+  updatedAt: 0,
 };
 
 /**
- * Generate a structured multi-scene 2D/3D storyboard & full Vietnamese script for ANY prompt topic!
+ * Offline fallback that dynamically breaks down the user's prompt into custom scenes
+ * (NEVER uses hardcoded boilerplate scenes 2-5!)
  */
-function buildUniversalStoryboard(rawPrompt, lower, durationSec) {
-  // Colors
+function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
   let mauChuDao = "#d4ff47";
   let mauPhu = "#00f0ff";
   let mauNen = "#0b0f19";
@@ -227,139 +295,81 @@ function buildUniversalStoryboard(rawPrompt, lower, durationSec) {
   } else if (lower.includes("tím") || lower.includes("hồng")) {
     mauChuDao = "#c084fc";
     mauPhu = "#f472b6";
-  } else if (lower.includes("xanh dương") || lower.includes("xanh biển")) {
-    mauChuDao = "#38bdf8";
-    mauPhu = "#d4ff47";
   }
 
-  // Music style
   let kieuNhacNen = "chill";
-  if (
-    lower.includes("sôi động") ||
-    lower.includes("edm") ||
-    lower.includes("bốc") ||
-    lower.includes("nhạc mạnh")
-  ) {
+  if (lower.includes("sôi động") || lower.includes("edm") || lower.includes("bốc")) {
     kieuNhacNen = "energetic";
   } else if (lower.includes("tắt nhạc") || lower.includes("không nhạc")) {
     kieuNhacNen = "off";
   }
 
-  // 2D vs 3D
-  const wants3D =
+  const batGiongDoc =
+    !lower.includes("tắt giọng") &&
+    !lower.includes("không giọng") &&
+    !lower.includes("tắt thoại") &&
+    !lower.includes("không thoại");
+  const batPhuDe =
+    !lower.includes("tắt sub") &&
+    !lower.includes("không sub") &&
+    !lower.includes("tắt phụ đề") &&
+    !lower.includes("không phụ đề");
+  const hienThi3D =
     lower.includes("3d") && !lower.includes("2d") && !lower.includes("hoạt hình 2d");
-  const hienThi3D = wants3D;
 
-  // Check if topic is about installing Agent / GitHub / coding / CLI
-  if (
-    lower.includes("github") ||
-    lower.includes("cài đặt") ||
-    lower.includes("agent") ||
-    lower.includes("repo") ||
-    lower.includes("skill")
-  ) {
-    return {
-      theLoai: "cong-nghe",
-      tieuDeChinh: "Hướng Dẫn Cài Đặt Agent Từ GitHub A → Z",
-      tenKenh: "HƯỚNG DẪN AI TRỰC QUAN · 2D MOTION",
-      loiThoai:
-        "Chào các bạn! Hôm nay mình sẽ hướng dẫn cách cài đặt bộ Agent kỹ năng từ GitHub cực kỳ dễ hiểu và trực quan. Bước một, mở kho lưu trữ GitHub cần dùng, bấm vào nút Code màu xanh lá và sao chép đường dẫn dự án. Bước hai, mở cửa sổ Terminal trong thư mục dự án của bạn và gõ lệnh git clone để tải toàn bộ bộ kỹ năng về thư mục chấm agents xược skills. Bước ba, chạy lệnh npm install để máy tự động cài đặt đầy đủ các thư viện đồ họa và âm thanh đi kèm. Bước bốn, kiểm tra danh sách kỹ năng đã được nạp tự động thông qua các file SKILL chấm md và AGENTS chấm md. Bước năm, mọi thứ đã sẵn sàng! Giờ bạn chỉ cần nhập yêu cầu bằng tiếng Việt trên giao diện và để Agent tự động làm việc từ A đến Z!",
-      batGiongDoc: !lower.includes("tắt giọng"),
-      kieuNhacNen,
-      batNhacNen: kieuNhacNen !== "off",
-      thoiLuongGiay: durationSec,
-      mauChuDao,
-      mauPhu,
-      mauNen,
-      hienThi3D,
-      cacPhanCanh: DEFAULT_GITHUB_AGENT_SCENES,
-    };
-  }
-
-  // Generic intelligent multi-scene builder for ANY other user topic!
-  // Clean up filler words from prompt to get the core topic title
   let cleanTopic = rawPrompt
     .replace(
-      /^(hãy\s+)?(làm|tạo|dựng)\s+(cho\s+mình\s+|cho\s+tôi\s+)?(1\s+|một\s+)?(clip|video|đoạn\s+phim)\s*/i,
+      /^(hãy\s+)?(làm|tạo|dựng|viết)\s+(cho\s+mình\s+|cho\s+tôi\s+)?(1\s+|một\s+)?(clip|video|đoạn\s+phim)\s*/i,
       "",
     )
-    .split(/[,.\n]/)[0]
+    .replace(/,?\s*(dễ|trực quan|hình ảnh|hoạt hình 2d động|nhạc nền nhẹ|vui tai|~?\d+\s*(s|giây|phút)).*$/i, "")
     .trim();
-  if (!cleanTopic || cleanTopic.length < 4) {
-    cleanTopic = "Cẩm Nang Hướng Dẫn Chi Tiết A → Z";
+
+  if (!cleanTopic || cleanTopic.length < 3) {
+    cleanTopic = rawPrompt.trim().slice(0, 50) || "Chủ Đề Sáng Tạo Mới";
   }
   cleanTopic = cleanTopic.charAt(0).toUpperCase() + cleanTopic.slice(1);
 
-  const customScenes = [
-    {
-      nhanPhu: "PHẦN 01 // TỔNG QUAN",
-      tieuDeCanh: `1. Giới Thiệu: ${cleanTopic}`,
-      noiDungCanh: `Khám phá quy trình từng bước đơn giản, trực quan và dễ áp dụng ngay trong thực tế.`,
-      loaiMinhHoa2D: "flowchart",
-      duLieuMinhHoa: [
-        `Xác định mục tiêu chính của ${cleanTopic}`,
-        "Chuẩn bị công cụ & tài nguyên cần thiết",
-        "Thực hiện theo lộ trình 5 bước chuẩn",
-      ],
-    },
-    {
-      nhanPhu: "PHẦN 02 // BƯỚC ĐẦU TIÊN",
-      tieuDeCanh: "2. Thiết Lập & Chuẩn Bị Nền Tảng",
-      noiDungCanh:
-        "Khởi tạo môi trường làm việc gọn gàng để tiết kiệm tối đa thời gian thao tác.",
-      loaiMinhHoa2D: "terminal",
-      duLieuMinhHoa: [
-        `> Khởi động quy trình: ${cleanTopic}`,
-        "> Nạp dữ liệu & cấu hình tự động...",
-        "✓ Hoàn tất bước chuẩn bị nền tảng!",
-      ],
-    },
-    {
-      nhanPhu: "PHẦN 03 // TRIỂN KHAI",
-      tieuDeCanh: "3. Thực Hiện Quy Trình Từng Bước",
-      noiDungCanh:
-        "Áp dụng công thức trực quan giúp tăng tốc độ xử lý và đảm bảo độ chính xác cao.",
-      loaiMinhHoa2D: "progress",
-      duLieuMinhHoa: [
-        "Tối ưu hóa bố cục",
-        "Tự động hóa tác vụ lặp lại",
-        "Kiểm tra chất lượng đầu ra",
-      ],
-    },
-    {
-      nhanPhu: "PHẦN 04 // KIỂM TRA",
-      tieuDeCanh: "4. Danh Sách Kiểm Tra Quan Trọng",
-      noiDungCanh:
-        "Đảm bảo mọi tiêu chí đều đạt chuẩn trước khi xuất bản và đưa vào sử dụng.",
-      loaiMinhHoa2D: "checklist",
-      duLieuMinhHoa: [
-        "Giao diện rõ ràng, trực quan, dễ hiểu",
-        "Tốc độ vận hành mượt mà, ổn định",
-        "Sẵn sàng chia sẻ và nhân rộng quy trình",
-      ],
-    },
-    {
-      nhanPhu: "PHẦN 05 // TỔNG KẾT",
-      tieuDeCanh: "5. Hoàn Tất & Ứng Dụng Thực Tế!",
-      noiDungCanh:
-        "Lưu lại ngay quy trình này để áp dụng mỗi ngày và nâng cao hiệu suất gấp nhiều lần!",
-      loaiMinhHoa2D: "cards",
-      duLieuMinhHoa: [
-        `✨ Nắm vững ${cleanTopic} chỉ trong vài phút`,
-        "⚡ Dễ dàng áp dụng cho mọi dự án mới",
-        "📌 Đừng quên lưu lại video để dùng khi cần nhé!",
-      ],
-    },
-  ];
+  const modes = ["illustration", "flowchart", "terminal", "checklist", "cards"];
+  const clauses = rawPrompt
+    .split(/[\n.;!?]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 5);
 
-  const customScript = `Chào các bạn! Trong video này chúng ta sẽ cùng tìm hiểu về ${cleanTopic} một cách cực kỳ dễ hiểu và trực quan. Đầu tiên, ở phần tổng quan, chúng ta xác định rõ mục tiêu và chuẩn bị đầy đủ các công cụ cần thiết trước khi bắt đầu. Tiếp theo, ở bước thứ hai, bạn tiến hành thiết lập môi trường nền tảng thật gọn gàng để mọi thao tác diễn ra tự động và nhanh chóng. Sang bước thứ ba, chúng ta triển khai quy trình cốt lõi theo từng công đoạn rõ ràng, giúp tiết kiệm tối đa thời gian. Ở bước thứ tư, hãy rà soát lại danh sách kiểm tra để đảm bảo mọi tiêu chí chất lượng đều đạt một trăm phần trăm. Cuối cùng, bạn đã hoàn tất toàn bộ quy trình và sẵn sàng áp dụng ngay vào thực tế. Hãy lưu lại video này để dùng bất cứ khi nào cần nhé!`;
+  const sceneTopics =
+    clauses.length >= 3
+      ? clauses.slice(0, 5)
+      : [
+          `Tổng quan & Mục tiêu: ${cleanTopic}`,
+          `Chuẩn bị công cụ cho: ${cleanTopic}`,
+          `Thao tác thực hiện trực tiếp: ${cleanTopic}`,
+          `Mẹo tối ưu & Lưu ý quan trọng khi ${cleanTopic}`,
+          `Kết quả hoàn chỉnh & Ứng dụng ${cleanTopic}`,
+        ];
+
+  const scenes = sceneTopics.map((st, idx) => ({
+    nhanPhu: `CẢNH 0${idx + 1} // BƯỚC ${idx + 1}`,
+    tieuDeCanh: `${idx + 1}. ${st.slice(0, 52)}`,
+    noiDungCanh: `Minh họa trực quan chi tiết cho phần: ${st}.`,
+    loaiMinhHoa2D: modes[idx % modes.length],
+    duLieuMinhHoa: [
+      `Ý chính 1: ${st.slice(0, 40)}`,
+      `Thao tác trực quan bước ${idx + 1}`,
+      `Hoàn thành bước ${idx + 1} nhanh chóng`,
+    ],
+  }));
+
+  const loiThoai = scenes
+    .map((s) => `${s.tieuDeCanh}. ${s.noiDungCanh}`)
+    .join(" ");
 
   return {
-    theLoai: "kien-thuc",
-    tieuDeChinh: cleanTopic,
-    tenKenh: "CHILL AUTOMATION STUDIO · 2D MOTION",
-    loiThoai: customScript,
-    batGiongDoc: !lower.includes("tắt giọng"),
+    theLoai: "cong-nghe",
+    tieuDeChinh: cleanTopic.slice(0, 55),
+    tenKenh: "CHILL ARGON STUDIO · 2D MOTION",
+    loiThoai,
+    batGiongDoc,
+    batPhuDe,
     kieuNhacNen,
     batNhacNen: kieuNhacNen !== "off",
     thoiLuongGiay: durationSec,
@@ -367,20 +377,20 @@ function buildUniversalStoryboard(rawPrompt, lower, durationSec) {
     mauPhu,
     mauNen,
     hienThi3D,
-    cacPhanCanh: customScenes,
+    cacPhanCanh: scenes,
   };
 }
 
 /**
- * Multi-Genre Vietnamese AI Prompt Interpreter
- * - Uses UniversalVideo (2D Motion Explainer / Tutorial / Story / Promo) by default!
- * - Only uses MechaCatDance when explicitly asked for 3D dancing character (mèo, chó shiba, gundam, nhảy...)
+ * 100% Creative AI Storyboard, Script & 2D Illustration Generator
+ * Uses https://text.pollinations.ai/openai (JSON mode) so every single scene (1..N)
+ * is uniquely written from scratch for the user's exact prompt!
  */
-function parseVietnamesePrompt(rawPrompt) {
+async function generateStoryboardWithAI(rawPrompt, wantCloudImages = false) {
   const p = (rawPrompt || "").trim();
   const lower = p.toLowerCase();
 
-  // Extract requested duration in seconds (e.g. "~60s", "45 giây", "2 phút")
+  // Extract requested duration in seconds
   let durationSec = 45;
   const secMatch = lower.match(/~?\s*(\d+)\s*(?:s|giây|sec)\b/);
   const minMatch = lower.match(/~?\s*(\d+)\s*(?:phút|phut|min)\b/);
@@ -390,204 +400,54 @@ function parseVietnamesePrompt(rawPrompt) {
     durationSec = Math.max(10, Math.min(600, parseInt(minMatch[1], 10) * 60));
   }
 
-  // Voice gender detection
   let giongDoc = "vi-VN-HoaiMyNeural";
   if (lower.includes("giọng nam") || lower.includes("nam minh")) {
     giongDoc = "vi-VN-NamMinhNeural";
   }
 
-  // Does the user explicitly want the 3D Dancing Character showcase?
-  const isCharacterDancePrompt =
-    (lower.includes("mèo") ||
-      lower.includes("chó") ||
-      lower.includes("shiba") ||
-      lower.includes("gundam") ||
-      lower.includes("nhảy") ||
-      lower.includes("dance") ||
-      lower.includes("hiphop") ||
-      lower.includes("disco") ||
-      lower.includes("múa võ")) &&
-    !lower.includes("hướng dẫn") &&
-    !lower.includes("cài đặt") &&
-    !lower.includes("hoạt hình 2d");
-
-  if (!isCharacterDancePrompt) {
-    const universalProps = buildUniversalStoryboard(p, lower, durationSec);
-    return {
-      compositionId: "UniversalVideo",
-      giongDoc,
-      summary: `Đã tạo Kịch Bản 2D Đa Cảnh (${universalProps.cacPhanCanh.length} bước · ~${universalProps.thoiLuongGiay}s) · Nhạc nền [${universalProps.kieuNhacNen === "chill" ? "Nhẹ Vui Tai Lo-Fi" : universalProps.kieuNhacNen}] · Chế độ [${universalProps.hienThi3D ? "3D" : "Hoạt Hình 2D Động"}]`,
-      props: universalProps,
-    };
-  }
-
-  // Otherwise configure 3D Character Dance Scene (MechaCatDance)
-  let nhanVat3D = "meo-mecha";
-  let defaultName = "MECHA NEKO-X9";
-  let defaultTag = "Siêu Nhân Mèo Mecha · Quẩy Cực Sung!";
-  let defaultSpeech =
-    "Xin chào các bạn! Mình là Mèo Siêu Nhân Mecha đây, cùng quẩy thật sung nhé!";
-
-  if (
-    lower.includes("chó") ||
-    lower.includes("shiba") ||
-    lower.includes("cún") ||
-    lower.includes("dog")
-  ) {
-    nhanVat3D = "cho-shiba";
-    defaultName = "CYBER SHIBA-07";
-    defaultTag = "Chiến Binh Chó Shiba Vũ Trụ · Quẩy Đỉnh Cao!";
-    defaultSpeech =
-      "Gâu gâu! Chó Shiba siêu nhân vũ trụ xin chào cả nhà, lên nhạc quẩy thôi nào!";
-  } else if (
-    lower.includes("gundam") ||
-    lower.includes("robot") ||
-    lower.includes("người máy")
-  ) {
-    nhanVat3D = "robot-gundam";
-    defaultName = "GUNDAM STRIKE-V";
-    defaultTag = "Siêu Chiến Binh Robot Gundam · Năng Lượng Tối Đa!";
-    defaultSpeech =
-      "Hệ thống chiến binh Gundam đã kích hoạt một trăm phần trăm! Sẵn sàng bùng nổ!";
-    giongDoc = "vi-VN-NamMinhNeural";
-  } else if (lower.includes("phi hành gia") || lower.includes("vũ trụ")) {
-    nhanVat3D = "phi-hanh-gia";
-    defaultName = "ASTRO HERO-99";
-    defaultTag = "Phi Hành Gia Siêu Cấp · Nhảy Giữa Ngân Hà!";
-    defaultSpeech =
-      "Từ trạm vũ trụ ngân hà, phi hành gia siêu nhân gửi lời chào tới tất cả các bạn!";
-  }
-
-  let kieuNhay = "disco";
-  if (lower.includes("hiphop") || lower.includes("hip-hop") || lower.includes("shuffle")) {
-    kieuNhay = "hiphop";
-  } else if (lower.includes("xoay") || lower.includes("breakdance") || lower.includes("360")) {
-    kieuNhay = "breakdance";
-  } else if (lower.includes("võ") || lower.includes("kungfu")) {
-    kieuNhay = "martial";
-  }
-
-  let hieuUngDacBiet = "canh-nang-luong";
-  if (lower.includes("sét") || lower.includes("điện")) {
-    hieuUngDacBiet = "tia-set";
-  } else if (lower.includes("hào quang") || lower.includes("vòng sáng")) {
-    hieuUngDacBiet = "vong-hao-quang";
-  }
-
-  let mauGiapChinh = "#cbd5e1";
-  let mauNangLuong = "#00f0ff";
-  let mauAoChoang = "#ff0055";
-
-  if (lower.includes("vàng") || lower.includes("bumblebee")) {
-    mauGiapChinh = "#facc15";
-    mauNangLuong = "#00f0ff";
-    mauAoChoang = "#ef4444";
-  } else if (lower.includes("tím") || lower.includes("eva")) {
-    mauGiapChinh = "#a855f7";
-    mauNangLuong = "#d4ff47";
-    mauAoChoang = "#ec4899";
-  } else if (lower.includes("xanh dương") || lower.includes("xanh biển")) {
-    mauGiapChinh = "#38bdf8";
-    mauNangLuong = "#d4ff47";
-    mauAoChoang = "#f97316";
-  } else if (lower.includes("đỏ") || lower.includes("iron")) {
-    mauGiapChinh = "#ef4444";
-    mauNangLuong = "#facc15";
-    mauAoChoang = "#38bdf8";
-  }
-
-  let tocDoNhay = 1.0;
-  const speedMatch = lower.match(/(\d+(?:\.\d+)?)\s*x/);
-  if (speedMatch) {
-    tocDoNhay = Math.min(2.0, Math.max(0.5, parseFloat(speedMatch[1])));
-  }
-
-  const batGiongDoc = !lower.includes("tắt giọng");
-  let loiThoai = defaultSpeech;
-  const quotedText = p.match(/["“]([^"”]+)["”]/);
-  if (quotedText && quotedText[1].trim().length > 3) {
-    loiThoai = quotedText[1].trim();
-  }
-
-  return {
-    compositionId: "MechaCatDance",
-    giongDoc,
-    summary: `Chế độ Nhân Vật 3D [${nhanVat3D}] · Vũ đạo [${kieuNhay}] · Hiệu ứng [${hieuUngDacBiet}]`,
-    props: {
-      nhanVat3D,
-      kieuNhay,
-      hieuUngDacBiet,
-      tenSieuNhan: defaultName,
-      khauHieu: defaultTag,
-      loiThoai,
-      batGiongDoc,
-      mauGiapChinh,
-      mauNangLuong,
-      mauAoChoang,
-      tocDoNhay,
-    },
-  };
-}
-
-/**
- * Zero-Key AI Storyboard & Script Generator (runs 100% inside the app UI with 0 API key & 0 cost)
- */
-async function generateStoryboardWithAI(rawPrompt) {
-  const baseParsed = parseVietnamesePrompt(rawPrompt);
-
-  // If user asked for a 3D dancing character or the exact GitHub Agent preset, return immediately or enrich
-  if (baseParsed.compositionId === "MechaCatDance") {
-    return baseParsed;
-  }
-  const lower = (rawPrompt || "").toLowerCase();
-  if (
-    lower.includes("github") &&
-    lower.includes("agent") &&
-    lower.includes("cài đặt")
-  ) {
-    return baseParsed;
-  }
+  const baseProps = buildDynamicFallbackStoryboard(p, lower, durationSec);
 
   try {
-    const durationSec = baseParsed.props.thoiLuongGiay || 45;
-    const targetWords = Math.min(220, Math.max(55, Math.round(durationSec * 2.2)));
+    const targetWords = Math.min(240, Math.max(60, Math.round(durationSec * 2.3)));
 
-    const systemInstruction = `Bạn là Đạo diễn Video Hoạt Hình 2D Motion Graphics chuyên nghiệp của Chill Argon Studio.
-Nhiệm vụ: Dựa trên yêu cầu của người dùng, hãy thiết kế kịch bản video 2D trực quan bằng tiếng Việt và CHỈ trả về duy nhất 1 khối JSON hợp lệ (không giải thích thêm) theo đúng cấu trúc sau:
+    const systemPrompt = `Bạn là Đạo diễn Hoạt Hình 2D Motion Graphics chuyên nghiệp.
+Hãy viết kịch bản video hoàn toàn mới, sáng tạo 100% theo đúng chủ đề người dùng yêu cầu. TUYỆT ĐỐI KHÔNG dùng nội dung mẫu chung chung.
+Trả về JSON hợp lệ theo cấu trúc:
 {
   "theLoai": "cong-nghe" | "kien-thuc" | "ke-chuyen" | "quang-cao",
-  "tieuDeChinh": "Tiêu đề chính ngắn gọn, hấp dẫn (tối đa 55 ký tự)",
-  "tenKenh": "NHÃN CHỦ ĐỀ NGẮN IN HOA · 2D MOTION",
-  "loiThoai": "Lời thuyết minh tiếng Việt tự nhiên, mạch lạc, cuốn hút, dài khoảng ${targetWords} từ để đọc vừa khít ${durationSec} giây.",
+  "tieuDeChinh": "Tiêu đề video cụ thể, hấp dẫn (tối đa 52 ký tự)",
+  "tenKenh": "NHÃN CHỦ ĐỀ IN HOA",
+  "loiThoai": "Lời thuyết minh tiếng Việt chi tiết, mạch lạc, khớp từng cảnh từ Cảnh 1 đến Cảnh 5 (khoảng ${targetWords} từ).",
   "cacPhanCanh": [
     {
-      "nhanPhu": "BƯỚC 01 // TỪ KHÓA",
-      "tieuDeCanh": "1. Tiêu đề phân cảnh 1",
-      "noiDungCanh": "Câu mô tả ngắn gọn trực quan cho cảnh 1.",
-      "loaiMinhHoa2D": "flowchart",
-      "duLieuMinhHoa": ["Ý ngắn 1", "Ý ngắn 2", "Ý ngắn 3"]
+      "nhanPhu": "CẢNH 01 // TỪ KHÓA",
+      "tieuDeCanh": "1. Tiêu đề cụ thể của Cảnh 1",
+      "noiDungCanh": "Mô tả cụ thể nội dung diễn ra trong Cảnh 1.",
+      "moTaHinhAnhEn": "2d flat vector cartoon illustration of [specific scene 1 action in English]",
+      "loaiMinhHoa2D": "illustration" | "flowchart" | "terminal" | "progress" | "checklist" | "cards",
+      "duLieuMinhHoa": ["Chi tiết cụ thể 1 của cảnh này", "Chi tiết cụ thể 2 của cảnh này", "Chi tiết cụ thể 3 của cảnh này"]
     }
   ]
 }
-Lưu ý:
-- Tạo đúng 5 phân cảnh trong mảng cacPhanCanh.
-- loaiMinhHoa2D của 5 cảnh lần lượt sử dụng đa dạng: "flowchart", "terminal", "progress", "checklist", "cards".
-- Mỗi duLieuMinhHoa gồm 3 dòng ngắn gọn, đúng trọng tâm chủ đề người dùng yêu cầu.`;
+Yêu cầu bắt buộc:
+- Phải có đúng 5 phân cảnh trong cacPhanCanh (Cảnh 1, Cảnh 2, Cảnh 3, Cảnh 4, Cảnh 5).
+- Cả 5 phân cảnh đều phải viết nội dung thực chất, bám sát chủ đề "${p}", tuyệt đối không lặp lại câu chữ chung chung.`;
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 25000);
+    const timer = setTimeout(() => controller.abort(), 24000);
 
-    const response = await fetch("https://text.pollinations.ai/", {
+    const response = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
       body: JSON.stringify({
         model: "openai",
+        response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: systemInstruction },
+          { role: "system", content: systemPrompt },
           {
             role: "user",
-            content: `Hãy thiết kế kịch bản video 2D chi tiết cho yêu cầu sau: "${rawPrompt}"`,
+            content: `Yêu cầu đề bài: "${p}". Hãy viết kịch bản 5 phân cảnh thật chi tiết và sáng tạo riêng cho đề bài này.`,
           },
         ],
       }),
@@ -595,8 +455,10 @@ Lưu ý:
     clearTimeout(timer);
 
     if (response.ok) {
-      const rawText = await response.text();
-      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      const apiJson = await response.json();
+      const contentStr =
+        apiJson?.choices?.[0]?.message?.content || JSON.stringify(apiJson);
+      const jsonMatch = contentStr.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const aiData = JSON.parse(jsonMatch[0]);
         if (
@@ -606,6 +468,7 @@ Lưu ý:
           aiData.cacPhanCanh.length >= 2
         ) {
           const validTypes = [
+            "illustration",
             "flowchart",
             "terminal",
             "progress",
@@ -614,36 +477,44 @@ Lưu ý:
           ];
           const sanitizedScenes = aiData.cacPhanCanh.slice(0, 8).map((sc, i) => {
             if (typeof sc === "string") {
-              const parts = sc.split(/[.;—–-]/).map((s) => s.trim()).filter(Boolean);
               return {
-                nhanPhu: `BƯỚC 0${i + 1} // THỰC HIỆN`,
-                tieuDeCanh: parts[0] || `${i + 1}. Bước ${i + 1}`,
+                nhanPhu: `CẢNH 0${i + 1}`,
+                tieuDeCanh: `${i + 1}. ${sc.slice(0, 48)}`,
                 noiDungCanh: sc,
+                moTaHinhAnhEn: `2d flat cartoon illustration of ${sc}`,
                 loaiMinhHoa2D: validTypes[i % validTypes.length],
-                duLieuMinhHoa: parts.length >= 2 ? parts.slice(0, 3) : [sc, "Thực hiện trực quan, dễ hiểu", "Hoàn tất bước này"],
+                duLieuMinhHoa: [sc],
               };
             }
+            const rawItems =
+              Array.isArray(sc.duLieuMinhHoa) && sc.duLieuMinhHoa.length > 0
+                ? sc.duLieuMinhHoa.slice(0, 4).map((item) => String(item))
+                : [
+                    String(sc.noiDungCanh || sc.tieuDeCanh || ""),
+                    `Chi tiết thực hiện bước ${i + 1}`,
+                  ];
             return {
-              nhanPhu: String(sc.nhanPhu || `BƯỚC 0${i + 1} // CHI TIẾT`),
-              tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Nội dung chính`),
+              nhanPhu: String(sc.nhanPhu || `CẢNH 0${i + 1} // BƯỚC ${i + 1}`),
+              tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Phân cảnh ${i + 1}`),
               noiDungCanh: String(sc.noiDungCanh || ""),
+              moTaHinhAnhEn: String(
+                sc.moTaHinhAnhEn ||
+                  `2d flat vector cartoon illustration of ${sc.tieuDeCanh}`,
+              ),
               loaiMinhHoa2D: validTypes.includes(sc.loaiMinhHoa2D)
                 ? sc.loaiMinhHoa2D
                 : validTypes[i % validTypes.length],
-              duLieuMinhHoa:
-                Array.isArray(sc.duLieuMinhHoa) && sc.duLieuMinhHoa.length > 0
-                  ? sc.duLieuMinhHoa.slice(0, 4).map((item) => String(item))
-                  : ["Nội dung trực quan 1", "Nội dung trực quan 2", "Hoàn tất"],
+              duLieuMinhHoa: rawItems,
             };
           });
 
           const mergedProps = {
-            ...baseParsed.props,
+            ...baseProps,
             theLoai: ["cong-nghe", "kien-thuc", "ke-chuyen", "quang-cao"].includes(
               aiData.theLoai,
             )
               ? aiData.theLoai
-              : baseParsed.props.theLoai,
+              : baseProps.theLoai,
             tieuDeChinh: String(aiData.tieuDeChinh),
             tenKenh: String(
               aiData.tenKenh || "CHILL ARGON STUDIO · AI STORYBOARD",
@@ -652,20 +523,28 @@ Lưu ý:
             cacPhanCanh: sanitizedScenes,
           };
 
+          await attachSceneIllustrations(mergedProps, wantCloudImages);
+
           return {
             compositionId: "UniversalVideo",
-            giongDoc: baseParsed.giongDoc,
-            summary: `🤖 AI đã tự động biên kịch "${mergedProps.tieuDeChinh}" (${sanitizedScenes.length} phân cảnh 2D · ~${mergedProps.thoiLuongGiay}s) ngay trên App!`,
+            giongDoc,
+            summary: `✨ AI đã sáng tạo mới hoàn toàn kịch bản "${mergedProps.tieuDeChinh}" (${sanitizedScenes.length} phân cảnh + ${sanitizedScenes.length} hình minh họa 2D riêng · ~${mergedProps.thoiLuongGiay}s)!`,
             props: mergedProps,
           };
         }
       }
     }
   } catch (err) {
-    console.warn("AI Cloud fallback to local parser:", err.message);
+    console.warn("AI Cloud fallback:", err.message);
   }
 
-  return baseParsed;
+  await attachSceneIllustrations(baseProps, false);
+  return {
+    compositionId: "UniversalVideo",
+    giongDoc,
+    summary: `Đã tạo kịch bản "${baseProps.tieuDeChinh}" (${baseProps.cacPhanCanh.length} phân cảnh + hình minh họa 2D riêng · ~${baseProps.thoiLuongGiay}s)`,
+    props: baseProps,
+  };
 }
 
 function getVideoList() {
@@ -702,33 +581,34 @@ function serveStaticFile(res, filePath, contentType) {
   res.end(buf);
 }
 
-function startRenderProcess(
+async function startRenderProcess(
   compositionId,
   props,
   giongDoc = "vi-VN-HoaiMyNeural",
 ) {
-  if (!studioState[compositionId]) {
-    studioState[compositionId] = {
-      outputFile: `${compositionId}.mp4`,
-      giongDoc,
-      props,
-    };
-  } else {
-    studioState[compositionId].props = props;
-    studioState[compositionId].giongDoc = giongDoc;
-  }
-  saveState(studioState);
-
-  let tagSlug = "video-ai";
-  if (compositionId === "UniversalVideo") {
-    tagSlug = `video-2d-${props.theLoai || "huong-dan"}-${props.thoiLuongGiay || 45}s`;
-  } else if (compositionId === "MechaCatDance") {
-    tagSlug = `${props.nhanVat3D || "meo"}-${props.kieuNhay || "dance"}`;
-  } else {
-    tagSlug = "argon-20-repos";
+  // Ensure every scene has its own generated 2D illustration before rendering
+  if (compositionId === "UniversalVideo" && Array.isArray(props.cacPhanCanh)) {
+    const missingImg = props.cacPhanCanh.some((s) => !s.hinhAnhCanh);
+    if (missingImg) {
+      await attachSceneIllustrations(props, false);
+    }
   }
 
-  const outputFileName = `${tagSlug}.mp4`;
+  studioState[compositionId] = {
+    outputFile: `${compositionId}.mp4`,
+    giongDoc,
+    props,
+  };
+
+  const slugTitle = (props.tieuDeChinh || "video-moi")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 28);
+
+  const outputFileName = `${slugTitle || "video-2d"}-${props.thoiLuongGiay || 45}s.mp4`;
   const outputRelPath = `out/${outputFileName}`;
 
   const fullOutPath = path.join(OUT_DIR, outputFileName);
@@ -744,13 +624,15 @@ function startRenderProcess(
     isRendering: true,
     compositionId,
     progress: 6,
-    stage: "sound: Đang tạo giọng đọc AI Tiếng Việt (msedge-tts)...",
+    stage: props.batGiongDoc
+      ? "sound: Đang tạo giọng đọc AI Tiếng Việt (msedge-tts)..."
+      : "design: Đang chuẩn bị hình ảnh minh họa 2D cho từng phân cảnh...",
     lastError: null,
     outputUrl: `/out/${outputFileName}`,
     updatedAt: Date.now(),
   };
 
-  // Step 1: Synthesize Vietnamese TTS and measure audio length if UniversalVideo
+  // Step 1: Synthesize Vietnamese TTS ONLY if batGiongDoc === true
   if (props.batGiongDoc && props.loiThoai) {
     try {
       execFileSync(
@@ -763,7 +645,6 @@ function startRenderProcess(
         { cwd: __dirname, timeout: 25000 },
       );
 
-      // Measure actual TTS audio duration via ffprobe so video never cuts off voiceover!
       if (compositionId === "UniversalVideo") {
         const probeOut = execFileSync(
           "npx.cmd",
@@ -782,7 +663,6 @@ function startRenderProcess(
         ).trim();
         const ttsSec = parseFloat(probeOut);
         if (!Number.isNaN(ttsSec) && ttsSec > 3) {
-          // Ensure video is at least as long as the voiceover + 2s outro (or user's requested duration)
           props.thoiLuongGiay = Math.max(
             props.thoiLuongGiay || 15,
             Math.ceil(ttsSec + 2),
@@ -797,9 +677,9 @@ function startRenderProcess(
   const propsFilePath = path.join(__dirname, "studio-ui", "current-props.json");
   fs.writeFileSync(propsFilePath, JSON.stringify(props), "utf8");
 
-  renderJob.progress = 12;
+  renderJob.progress = 14;
   renderJob.stage =
-    "brief → design → animate: Đang đóng gói các phân cảnh 2D/3D...";
+    "brief → design → animate: Đang đóng gói hình ảnh 2D & chuyển động các phân cảnh...";
 
   const child = spawn(
     "npx.cmd",
@@ -824,7 +704,7 @@ function startRenderProcess(
       const pct = parseInt(bundleMatch[1], 10);
       renderJob.progress = Math.max(
         renderJob.progress,
-        12 + Math.round(pct * 0.18),
+        14 + Math.round(pct * 0.16),
       );
       renderJob.stage = `build: Đang đóng gói ${props.cacPhanCanh ? props.cacPhanCanh.length + " phân cảnh 2D" : "cảnh 3D"} (${pct}%)...`;
     }
@@ -839,7 +719,7 @@ function startRenderProcess(
     const encodeMatch = text.match(/Encoded\s+(\d+)\/(\d+)/);
     if (encodeMatch) {
       renderJob.progress = 97;
-      renderJob.stage = `sound & review: Đang ghép giọng đọc AI + Nhạc nền & xuất MP4...`;
+      renderJob.stage = `sound & review: Đang ghép âm thanh & xuất file MP4...`;
     }
   };
 
@@ -850,7 +730,7 @@ function startRenderProcess(
     if (code === 0) {
       renderJob.isRendering = false;
       renderJob.progress = 100;
-      renderJob.stage = `ship ✓ Hoàn tất! Đã xuất file ${outputFileName} (${props.thoiLuongGiay || 6}s · 1080x1920 · 30fps).`;
+      renderJob.stage = `ship ✓ Hoàn tất! Đã xuất file ${outputFileName} (${props.thoiLuongGiay || 6}s · Giọng đọc: ${props.batGiongDoc ? "BẬT" : "TẮT"} · Phụ đề: ${props.batPhuDe !== false ? "BẬT" : "TẮT"}).`;
       renderJob.outputUrl = `/out/${outputFileName}?t=${Date.now()}`;
       renderJob.updatedAt = Date.now();
     } else {
@@ -878,128 +758,40 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && pathname.startsWith("/public/")) {
-    const fileName = path.basename(pathname);
-    const filePath = path.join(PUBLIC_DIR, fileName);
-    const ext = path.extname(fileName).toLowerCase();
+    const relFromPublic = pathname.replace(/^\/public\//, "");
+    const safePath = path.normalize(path.join(PUBLIC_DIR, relFromPublic));
+    if (!safePath.startsWith(PUBLIC_DIR)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
+    const ext = path.extname(safePath).toLowerCase();
     const mime =
       ext === ".svg"
         ? "image/svg+xml"
         : ext === ".mp3"
           ? "audio/mpeg"
-          : ext === ".ico"
-            ? "image/x-icon"
-            : "application/octet-stream";
-    serveStaticFile(res, filePath, mime);
+          : ext === ".jpg" || ext === ".jpeg"
+            ? "image/jpeg"
+            : ext === ".png"
+              ? "image/png"
+              : ext === ".ico"
+                ? "image/x-icon"
+                : "application/octet-stream";
+    serveStaticFile(res, safePath, mime);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/status") {
-    let argonRequest = null;
-    const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
-    if (fs.existsSync(reqFile)) {
-      try {
-        argonRequest = JSON.parse(fs.readFileSync(reqFile, "utf8"));
-      } catch {
-        // ignore
-      }
-    }
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(
       JSON.stringify({
         lanUrl: `http://${getLanIp()}:${PORT}`,
         state: studioState,
         renderJob,
-        argonRequest,
         videos: getVideoList(),
       }),
     );
-    return;
-  }
-
-  if (req.method === "POST" && pathname === "/api/argon-request") {
-    let body = "";
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
-    req.on("end", () => {
-      try {
-        const payload = JSON.parse(body);
-        const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
-        const requestObj = {
-          id: `req-${Date.now()}`,
-          status: "pending",
-          prompt: (payload.prompt || "").trim(),
-          activeTemplate: payload.activeTemplate || "UniversalVideo",
-          createdAt: new Date().toLocaleTimeString("vi-VN"),
-          updatedAt: Date.now(),
-          message:
-            "Đang chờ Argon (Antigravity) đọc file studio-ui/argon-request.json và tự động thiết kế/dựng video...",
-        };
-        fs.writeFileSync(reqFile, JSON.stringify(requestObj, null, 2), "utf8");
-        res.writeHead(200, {
-          "Content-Type": "application/json; charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({
-            ok: true,
-            argonRequest: requestObj,
-            triggerCommand: "Thực hiện yêu cầu từ Chill Argon Studio",
-          }),
-        );
-      } catch (err) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(err) }));
-      }
-    });
-    return;
-  }
-
-  if (req.method === "POST" && pathname === "/api/argon-complete") {
-    let body = "";
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
-    req.on("end", () => {
-      try {
-        const payload = JSON.parse(body);
-        const compositionId = payload.compositionId || "UniversalVideo";
-        const props = payload.props || studioState[compositionId]?.props || {};
-        const giongDoc = payload.giongDoc || "vi-VN-HoaiMyNeural";
-
-        const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
-        const completedObj = {
-          id: payload.id || `req-${Date.now()}`,
-          status: "completed",
-          prompt: payload.prompt || "",
-          compositionId,
-          props,
-          giongDoc,
-          updatedAt: Date.now(),
-          message:
-            payload.summary ||
-            "✅ Argon (Antigravity) đã thiết kế xong kịch bản & đang xuất video MP4!",
-        };
-        fs.writeFileSync(
-          reqFile,
-          JSON.stringify(completedObj, null, 2),
-          "utf8",
-        );
-
-        if (payload.autoRender !== false && !renderJob.isRendering) {
-          startRenderProcess(compositionId, props, giongDoc);
-        }
-
-        res.writeHead(200, {
-          "Content-Type": "application/json; charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({ ok: true, argonRequest: completedObj, renderJob }),
-        );
-      } catch (err) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(err) }));
-      }
-    });
     return;
   }
 
@@ -1007,6 +799,27 @@ const server = http.createServer((req, res) => {
     exec(`explorer.exe "${OUT_DIR}"`);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  // Endpoint to regenerate 2D illustrations (either fast SVG vector or Cloud AI image)
+  if (req.method === "POST" && pathname === "/api/regenerate-images") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", async () => {
+      try {
+        const payload = JSON.parse(body);
+        const props = payload.props || {};
+        await attachSceneIllustrations(props, payload.useCloudImage === true);
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ ok: true, props }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err) }));
+      }
+    });
     return;
   }
 
@@ -1018,13 +831,13 @@ const server = http.createServer((req, res) => {
     req.on("end", async () => {
       try {
         const payload = JSON.parse(body);
-        const useCloudAI = payload.useCloudAI !== false;
-        const parsed = useCloudAI
-          ? await generateStoryboardWithAI(payload.prompt || "")
-          : parseVietnamesePrompt(payload.prompt || "");
+        const parsed = await generateStoryboardWithAI(
+          payload.prompt || "",
+          payload.useCloudImage === true,
+        );
 
         if (payload.autoRender && !renderJob.isRendering) {
-          startRenderProcess(
+          await startRenderProcess(
             parsed.compositionId,
             parsed.props,
             parsed.giongDoc,
@@ -1047,7 +860,7 @@ const server = http.createServer((req, res) => {
     req.on("data", (chunk) => {
       body += chunk;
     });
-    req.on("end", () => {
+    req.on("end", async () => {
       if (renderJob.isRendering) {
         res.writeHead(409, { "Content-Type": "application/json" });
         res.end(
@@ -1062,7 +875,7 @@ const server = http.createServer((req, res) => {
         const props = payload.props || studioState[compositionId]?.props || {};
         const giongDoc = payload.giongDoc || "vi-VN-HoaiMyNeural";
 
-        startRenderProcess(compositionId, props, giongDoc);
+        await startRenderProcess(compositionId, props, giongDoc);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, renderJob }));
@@ -1080,6 +893,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(
-    `Chill Argon Studio (Universal 2D/3D) đang chạy tại: http://localhost:${PORT} (LAN: http://${getLanIp()}:${PORT})`,
+    `Chill Argon Studio đang chạy tại: http://localhost:${PORT} (LAN: http://${getLanIp()}:${PORT})`,
   );
 });

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320">
+    <defs>
+      <linearGradient id="bgGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0b1120"/>
+        <stop offset="60%" stop-color="#111c35"/>
+        <stop offset="100%" stop-color="#090d16"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="320" rx="22" fill="url(#bgGrad4)"/>
+    <circle cx="720" cy="40" r="140" fill="#d4ff47" opacity="0.08"/>
+    <circle cx="120" cy="280" r="160" fill="#00f0ff" opacity="0.08"/>
+
+    <!-- Scene Badge & Title on Left -->
+    <rect x="34" y="28" width="185" height="32" rx="16" fill="#d4ff47"/>
+    <text x="126" y="49" text-anchor="middle" fill="#050811" font-family="monospace" font-size="15" font-weight="900">CẢNH 05 // BƯỚC 5</text>
+
+    <text x="34" y="92" fill="#ffffff" font-family="Segoe UI, sans-serif" font-size="23" font-weight="900">5. Kết quả hoàn chỉnh &amp; Ứng dụng Hướng dẫn cài đ</text>
+    <text x="34" y="118" fill="#94a3b8" font-family="Segoe UI, sans-serif" font-size="14" font-weight="600">Minh họa trực quan chi tiết cho phần: Kết quả hoàn chỉnh &amp; Ứng dụng Hướng d</text>
+
+    
+        <rect x="34" y="135" width="405" height="40" rx="10" fill="#162038" stroke="#d4ff47" stroke-width="2"/>
+        <text x="52" y="161" fill="#f8fafc" font-family="Segoe UI, sans-serif" font-size="17" font-weight="700">Ý chính 1: Kết quả hoàn chỉnh &amp; Ứng dụng H</text>
+      
+        <rect x="34" y="187" width="405" height="40" rx="10" fill="#162038" stroke="#00f0ff" stroke-width="2"/>
+        <text x="52" y="213" fill="#f8fafc" font-family="Segoe UI, sans-serif" font-size="17" font-weight="700">Thao tác trực quan bước 5</text>
+      
+        <rect x="34" y="239" width="405" height="40" rx="10" fill="#162038" stroke="#d4ff47" stroke-width="2"/>
+        <text x="52" y="265" fill="#f8fafc" font-family="Segoe UI, sans-serif" font-size="17" font-weight="700">Hoàn thành bước 5 nhanh chóng</text>
+      
+    
+      <!-- 2D Cartoon Laptop + Code Window + Mascot -->
+      <rect x="470" y="55" width="290" height="190" rx="18" fill="#0f172a" stroke="#d4ff47" stroke-width="4"/>
+      <rect x="470" y="55" width="290" height="34" rx="14" fill="#1e293b"/>
+      <circle cx="494" cy="72" r="6" fill="#ef4444"/>
+      <circle cx="514" cy="72" r="6" fill="#facc15"/>
+      <circle cx="534" cy="72" r="6" fill="#22c55e"/>
+      <text x="492" y="122" fill="#d4ff47" font-family="monospace" font-size="18" font-weight="bold">$ git clone repo.git</text>
+      <text x="492" y="154" fill="#00f0ff" font-family="monospace" font-size="17">&gt; Installing skills...</text>
+      <rect x="492" y="176" width="210" height="14" rx="7" fill="#1e293b"/>
+      <rect x="492" y="176" width="90" height="14" rx="7" fill="#d4ff47"/>
+      <path d="M440 245 L790 245 L765 268 L465 268 Z" fill="#334155" stroke="#00f0ff" stroke-width="3"/>
+    
+  </svg>

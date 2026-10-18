@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   CalculateMetadataFunction,
   Easing,
+  Img,
   interpolate,
   Sequence,
   staticFile,
@@ -25,8 +26,10 @@ export const SceneItemSchema = z.object({
   noiDungCanh: z.string(),
   nhanPhu: z.string().optional(),
   conSoNoiBat: z.string().optional(),
+  hinhAnhCanh: z.string().optional(),
+  moTaHinhAnhEn: z.string().optional(),
   loaiMinhHoa2D: z
-    .enum(["terminal", "flowchart", "checklist", "progress", "cards"])
+    .enum(["illustration", "terminal", "flowchart", "checklist", "progress", "cards"])
     .optional(),
   duLieuMinhHoa: z.array(z.string()).optional(),
 });
@@ -38,7 +41,11 @@ export const UniversalVideoSchema = z.object({
   tieuDeChinh: z.string().describe("Tiêu đề chính của Video"),
   tenKenh: z.string().describe("Tên kênh / Thương hiệu"),
   loiThoai: z.string().describe("Toàn bộ kịch bản lời thoại AI Tiếng Việt"),
-  batGiongDoc: z.boolean().describe("Bật giọng đọc AI Tiếng Việt"),
+  batGiongDoc: z.boolean().describe("Bật giọng đọc AI Tiếng Việt (Độc lập với phụ đề)"),
+  batPhuDe: z
+    .boolean()
+    .optional()
+    .describe("Bật phụ đề chữ Karaoke trên màn hình (Độc lập với giọng đọc)"),
   kieuNhacNen: z
     .enum(["chill", "energetic", "off"])
     .optional()
@@ -54,7 +61,7 @@ export const UniversalVideoSchema = z.object({
   mauNen: z.string().describe("Màu nền (HEX)"),
   hienThi3D: z
     .boolean()
-    .describe("True = Khối 3D, False = Hoạt hình 2D Vector & Terminal động"),
+    .describe("True = Khối 3D, False = Hoạt hình 2D Vector & Minh họa động"),
   cacPhanCanh: z.array(SceneItemSchema).describe("Danh sách các phân cảnh"),
 });
 
@@ -74,11 +81,11 @@ export const calculateUniversalMetadata: CalculateMetadataFunction<
 };
 
 export const UniversalVideo: React.FC<UniversalVideoProps> = ({
-  theLoai = "cong-nghe",
-  tieuDeChinh = "Hướng Dẫn Cài Đặt Agent Từ GitHub A → Z",
-  tenKenh = "CHILL AUTOMATION STUDIO",
+  tieuDeChinh = "Dự Án Video Sáng Tạo Mới",
+  tenKenh = "CHILL ARGON STUDIO",
   loiThoai = "",
   batGiongDoc = true,
+  batPhuDe = true,
   kieuNhacNen = "chill",
   batNhacNen = true,
   mauChuDao = "#d4ff47",
@@ -457,7 +464,8 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   alignItems: "center",
                   justifyContent: "space-between",
                   borderBottom: "1px solid rgba(255,255,255,0.1)",
-                  paddingBottom: 18,
+                  paddingBottom: 16,
+                  marginBottom: 16,
                 }}
               >
                 <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -488,20 +496,12 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   <span
                     style={{
                       fontFamily: "monospace",
-                      fontSize: 22,
+                      fontSize: 21,
                       color: "#94a3b8",
                       marginLeft: 12,
                     }}
                   >
-                    {visualMode2D === "terminal"
-                      ? "bash — agent-installer"
-                      : visualMode2D === "flowchart"
-                        ? "workflow-diagram.svg"
-                        : visualMode2D === "checklist"
-                          ? "setup-checklist.md"
-                          : visualMode2D === "progress"
-                            ? "installer-progress"
-                            : "agent-modules.jsx"}
+                    {activeScene.nhanPhu || `CẢNH 0${currentSceneIndex + 1} · MINH HỌA 2D`}
                   </span>
                 </div>
                 <span
@@ -516,13 +516,69 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                 </span>
               </div>
 
+              {/* CUSTOM GENERATED 2D ILLUSTRATION IMAGE FOR THIS SCENE */}
+              {activeScene.hinhAnhCanh && (
+                <div
+                  style={{
+                    width: "100%",
+                    height: visualMode2D === "illustration" ? 410 : 250,
+                    borderRadius: 22,
+                    overflow: "hidden",
+                    border: `2px solid ${mauChuDao}66`,
+                    marginBottom: 18,
+                    position: "relative",
+                    backgroundColor: "#0f172a",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Img
+                    src={staticFile(activeScene.hinhAnhCanh)}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transform: `scale(${1 + sceneProgress * 0.08}) translateY(${Math.sin(frame * 0.06) * 4}px)`,
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 2D MODE 0: ILLUSTRATION + KEY POINTS */}
+              {visualMode2D === "illustration" && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 14,
+                    margin: "auto 0",
+                  }}
+                >
+                  {visualItems.slice(0, 2).map((itemText, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        backgroundColor: "#131c31",
+                        borderLeft: `8px solid ${idx % 2 === 0 ? mauChuDao : mauPhu}`,
+                        borderRadius: 16,
+                        padding: "16px 24px",
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: "#f8fafc",
+                      }}
+                    >
+                      {itemText}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* 2D MODE 1: ANIMATED TERMINAL TYPING */}
               {visualMode2D === "terminal" && (
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 20,
+                    gap: 16,
                     margin: "auto 0",
                     fontFamily: "monospace",
                   }}
@@ -543,8 +599,8 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                           backgroundColor: "rgba(15, 23, 42, 0.95)",
                           border: `2px solid ${lineProg > 0.9 ? mauChuDao : "#1e293b"}`,
                           borderRadius: 18,
-                          padding: "20px 26px",
-                          fontSize: 30,
+                          padding: "16px 24px",
+                          fontSize: 28,
                           fontWeight: 700,
                           color: lIdx % 2 === 0 ? mauChuDao : mauPhu,
                           opacity: lineProg > 0 ? 1 : 0.25,
@@ -556,7 +612,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                             style={{
                               display: "inline-block",
                               width: 16,
-                              height: 30,
+                              height: 28,
                               backgroundColor: mauChuDao,
                               marginLeft: 6,
                             }}
@@ -574,7 +630,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 22,
+                    gap: 16,
                     margin: "auto 0",
                   }}
                 >
@@ -595,23 +651,23 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 22,
+                          gap: 18,
                           scale: 0.85 + nodeEnter * 0.15,
                           opacity: nodeEnter,
                         }}
                       >
                         <div
                           style={{
-                            width: 74,
-                            height: 74,
-                            borderRadius: 20,
+                            width: 64,
+                            height: 64,
+                            borderRadius: 18,
                             backgroundColor:
                               nIdx % 2 === 0 ? mauChuDao : mauPhu,
                             color: "#050811",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 32,
+                            fontSize: 28,
                             fontWeight: 900,
                             fontFamily: "monospace",
                             flexShrink: 0,
@@ -624,9 +680,9 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                             flex: 1,
                             backgroundColor: "#131c31",
                             border: `2px solid ${nIdx % 2 === 0 ? mauChuDao : mauPhu}`,
-                            borderRadius: 20,
-                            padding: "20px 28px",
-                            fontSize: 31,
+                            borderRadius: 18,
+                            padding: "16px 24px",
+                            fontSize: 28,
                             fontWeight: 700,
                             color: "#f8fafc",
                           }}
@@ -645,7 +701,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 20,
+                    gap: 16,
                     margin: "auto 0",
                   }}
                 >
@@ -658,19 +714,19 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 22,
+                          gap: 18,
                           backgroundColor: checked
                             ? "rgba(212, 255, 71, 0.1)"
                             : "#111827",
                           border: `2px solid ${checked ? mauChuDao : "#26324d"}`,
-                          borderRadius: 20,
-                          padding: "20px 28px",
+                          borderRadius: 18,
+                          padding: "16px 24px",
                         }}
                       >
                         <div
                           style={{
-                            width: 48,
-                            height: 48,
+                            width: 44,
+                            height: 44,
                             borderRadius: 12,
                             backgroundColor: checked
                               ? mauChuDao
@@ -680,7 +736,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 28,
+                            fontSize: 26,
                             fontWeight: 900,
                             flexShrink: 0,
                           }}
@@ -689,7 +745,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                         </div>
                         <span
                           style={{
-                            fontSize: 31,
+                            fontSize: 28,
                             fontWeight: 700,
                             color: checked ? "#ffffff" : "#94a3b8",
                           }}
@@ -708,7 +764,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 24,
+                    gap: 18,
                     margin: "auto 0",
                   }}
                 >
@@ -722,17 +778,17 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                     <span
                       style={{
                         fontFamily: "monospace",
-                        fontSize: 28,
+                        fontSize: 26,
                         color: mauPhu,
                         fontWeight: 700,
                       }}
                     >
-                      TIẾN ĐỘ CÀI ĐẶT & KÍCH HOẠT AGENT
+                      {activeScene.nhanPhu || "TIẾN ĐỘ THỰC HIỆN"}
                     </span>
                     <span
                       style={{
                         fontFamily: "monospace",
-                        fontSize: 76,
+                        fontSize: 64,
                         fontWeight: 900,
                         color: mauChuDao,
                       }}
@@ -744,7 +800,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   <div
                     style={{
                       width: "100%",
-                      height: 36,
+                      height: 32,
                       backgroundColor: "#162038",
                       borderRadius: 999,
                       overflow: "hidden",
@@ -761,7 +817,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                     {visualItems.map((tag, tIdx) => (
                       <div
                         key={tIdx}
@@ -770,9 +826,9 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                           minWidth: 240,
                           backgroundColor: "#131c31",
                           border: `2px solid ${mauChuDao}88`,
-                          borderRadius: 18,
-                          padding: "18px 22px",
-                          fontSize: 27,
+                          borderRadius: 16,
+                          padding: "14px 20px",
+                          fontSize: 25,
                           fontWeight: 700,
                           color: "#f8fafc",
                         }}
@@ -790,7 +846,7 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                   style={{
                     display: "grid",
                     gridTemplateColumns: "1fr",
-                    gap: 18,
+                    gap: 16,
                     margin: "auto 0",
                   }}
                 >
@@ -804,8 +860,8 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
                           backgroundColor: "#131c31",
                           borderLeft: `10px solid ${kIdx % 2 === 0 ? mauChuDao : mauPhu}`,
                           borderRadius: 18,
-                          padding: "22px 28px",
-                          fontSize: 31,
+                          padding: "18px 24px",
+                          fontSize: 28,
                           fontWeight: 700,
                           color: "#ffffff",
                           translate: `0px ${floatOffset}px`,
@@ -876,9 +932,9 @@ export const UniversalVideo: React.FC<UniversalVideoProps> = ({
           )}
         </div>
 
-        {/* === FOOTER: KARAOKE CAPTIONS & AUDIO WAVEFORM === */}
+        {/* === FOOTER: KARAOKE CAPTIONS (CONTROLLED INDEPENDENTLY BY batPhuDe) & AUDIO WAVEFORM === */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {visibleWords.length > 0 && (
+          {batPhuDe !== false && visibleWords.length > 0 && (
             <div
               style={{
                 backgroundColor: "rgba(5, 8, 17, 0.92)",

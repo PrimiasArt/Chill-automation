@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chill Argon Studio — Bàn Làm Việc Video AI Đa Năng (2D & 3D)</title>
+  <title>Chill Argon Studio — Sáng Tạo Video AI Đa Phân Cảnh Mới</title>
   <link rel="icon" type="image/x-icon" href="/public/chill-argon-studio.ico" />
   <style>
     :root {
@@ -130,7 +130,7 @@
       gap: 10px;
       align-items: stretch;
     }
-    @media (max-width: 1120px) {
+    @media (max-width: 1024px) {
       .prompt-input-row {
         grid-template-columns: 1fr;
       }
@@ -145,7 +145,7 @@
       font-size: 14px;
       font-family: inherit;
       resize: vertical;
-      min-height: 54px;
+      min-height: 58px;
       line-height: 1.45;
       outline: none;
     }
@@ -153,11 +153,18 @@
       border-color: var(--accent);
       box-shadow: 0 0 0 2px rgba(212, 255, 71, 0.2);
     }
+    .prompt-options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
     .prompt-chips {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 7px;
       flex-wrap: wrap;
     }
     .chip-label {
@@ -169,8 +176,8 @@
       background: #172036;
       border: 1px solid #2c3a5e;
       color: #dbeafe;
-      font-size: 12px;
-      padding: 5px 11px;
+      font-size: 11.5px;
+      padding: 4px 10px;
       border-radius: 999px;
       cursor: pointer;
       transition: all 0.15s;
@@ -178,26 +185,23 @@
     .chip:hover {
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(212, 255, 71, 0.08);
-    }
-    .chip-highlight {
-      border-color: rgba(212, 255, 71, 0.6);
-      background: rgba(212, 255, 71, 0.12);
-      color: var(--accent);
-      font-weight: 700;
     }
     .prompt-feedback {
-      margin-top: 8px;
-      font-size: 12.5px;
+      margin-top: 10px;
+      padding: 9px 13px;
+      border-radius: 10px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      font-size: 13px;
       color: var(--cyan);
-      font-weight: 600;
+      font-weight: 700;
       display: none;
     }
 
     /* MAIN 3-COLUMN WORKSPACE */
     .workspace {
       display: grid;
-      grid-template-columns: 330px 1fr 440px;
+      grid-template-columns: 350px 1fr 480px;
       gap: 18px;
       padding: 16px 20px 24px;
       flex: 1;
@@ -205,7 +209,7 @@
       width: 100%;
       margin: 0 auto;
     }
-    @media (max-width: 1240px) {
+    @media (max-width: 1260px) {
       .workspace {
         grid-template-columns: 1fr;
       }
@@ -244,74 +248,40 @@
       font-weight: 700;
     }
 
-    /* TEMPLATE CARDS */
-    .template-list {
-      display: flex;
-      flex-direction: column;
+    /* TOGGLE CARDS FOR VOICE & SUBTITLES */
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-    .template-card {
-      background: #151c2c;
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      padding: 13px;
+    .toggle-card {
+      background: #0b101b;
+      border: 1.5px solid #26324f;
+      border-radius: 11px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       cursor: pointer;
-      transition: all 0.18s ease;
+      user-select: none;
+      transition: all 0.15s;
     }
-    .template-card:hover {
-      background: var(--panel-hover);
-      border-color: #3b4b75;
-    }
-    .template-card.active {
+    .toggle-card.on {
       border-color: var(--accent);
-      background: rgba(212, 255, 71, 0.07);
-      box-shadow: 0 0 0 1px var(--accent);
+      background: rgba(212, 255, 71, 0.08);
     }
-    .template-tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 5px;
-      margin-bottom: 6px;
-      background: rgba(0, 240, 255, 0.14);
-      color: var(--cyan);
-    }
-    .template-name {
-      font-size: 15px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-    .template-desc {
+    .toggle-card span {
       font-size: 12.5px;
-      color: var(--muted);
-      line-height: 1.45;
+      font-weight: 800;
+    }
+    .toggle-card input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
     }
 
-    /* INFO BOXES */
-    .guide-box {
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px dashed #2e3b5e;
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 12.5px;
-      line-height: 1.55;
-      color: #cbd5e1;
-    }
-    .guide-box h4 {
-      color: #fff;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .guide-box ul {
-      padding-left: 16px;
-    }
-    .guide-box li {
-      margin-bottom: 5px;
-    }
-
-    /* VIDEO PLAYER */
+    /* VIDEO PLAYER & EMPTY PLACEHOLDER */
     .player-wrapper {
       display: flex;
       flex-direction: column;
@@ -324,6 +294,27 @@
       min-height: 490px;
       position: relative;
     }
+    .empty-player-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      gap: 12px;
+      max-width: 440px;
+    }
+    .empty-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: rgba(212, 255, 71, 0.1);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+    }
     video {
       max-height: 510px;
       width: auto;
@@ -331,10 +322,11 @@
       border-radius: 10px;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
       background: #000;
+      display: none;
     }
     .player-bar {
       width: 100%;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
@@ -370,7 +362,7 @@
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--cyan), var(--accent));
-      width: 100%;
+      width: 0%;
       transition: width 0.3s ease;
     }
 
@@ -389,8 +381,11 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--cyan);
-      padding-top: 6px;
+      padding-top: 8px;
       border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .field {
       display: flex;
@@ -425,7 +420,7 @@
       font-family: inherit;
     }
     .input-area {
-      min-height: 68px;
+      min-height: 74px;
       resize: vertical;
       line-height: 1.45;
     }
@@ -464,20 +459,20 @@
       cursor: pointer;
     }
 
-    /* SCENE BUILDER CARDS */
+    /* SCENE BUILDER CARDS WITH LIVE 2D IMAGE THUMBNAIL */
     .scene-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .scene-item {
       background: #0b101b;
       border: 1px solid #26314d;
-      border-radius: 11px;
-      padding: 11px;
+      border-radius: 12px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
     }
     .scene-item-header {
       display: flex;
@@ -486,6 +481,21 @@
       font-size: 12px;
       font-weight: 800;
       color: var(--accent);
+    }
+    .scene-thumb-wrap {
+      width: 100%;
+      height: 135px;
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1px solid #2b395c;
+      background: #070a12;
+      position: relative;
+    }
+    .scene-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .btn-mini {
       background: #1b253d;
@@ -501,7 +511,7 @@
       background: rgba(0, 240, 255, 0.1);
       color: var(--cyan);
       border: 1px dashed rgba(0, 240, 255, 0.45);
-      padding: 9px;
+      padding: 10px;
       border-radius: 9px;
       font-size: 12.5px;
       font-weight: 800;
@@ -561,6 +571,8 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
+      max-height: 170px;
+      overflow-y: auto;
     }
     .history-item {
       display: flex;
@@ -568,9 +580,9 @@
       justify-content: space-between;
       background: #141b2c;
       border: 1px solid var(--border);
-      padding: 9px 12px;
+      padding: 8px 12px;
       border-radius: 9px;
-      font-size: 12.5px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -581,14 +593,14 @@
     <div class="brand">
       <span class="brand-badge">CHILL ARGON STUDIO</span>
       <div>
-        <span class="brand-title">Bàn Làm Việc Video AI Đa Năng (Hoạt Hình 2D Động & 3D)</span>
-        <span class="brand-sub">Hướng dẫn · Kiến thức · Kể chuyện · Quảng cáo · Nhân vật 3D</span>
+        <span class="brand-title">Bàn Làm Việc Sáng Tạo Video AI Đa Phân Cảnh (Không Cố Định Mẫu)</span>
+        <span class="brand-sub">AI tự viết kịch bản từ Cảnh 1 → Cảnh N · Tự vẽ hình minh họa 2D riêng cho từng cảnh</span>
       </div>
     </div>
     <div class="header-actions">
-      <span class="lan-pill" id="lanUrlPill" title="Mở đường dẫn này trên máy tính hoặc điện thoại khác cùng mạng Wi-Fi">🌐 Mạng LAN: Đang tải...</span>
-      <button class="btn btn-secondary" onclick="openOutputFolder()">📂 Mở thư mục chứa Video</button>
-      <a class="btn btn-secondary" href="http://localhost:3000" target="_blank">⚙️ Mở Remotion Studio</a>
+      <span class="lan-pill" id="lanUrlPill">🌐 Mạng LAN: Đang tải...</span>
+      <button class="btn btn-secondary" onclick="resetBlankWorkspace()">✨ Làm Mới Trắng</button>
+      <button class="btn btn-secondary" onclick="openOutputFolder()">📂 Mở thư mục Video (out/)</button>
     </div>
   </header>
 
@@ -597,42 +609,43 @@
     <div class="prompt-box">
       <div class="prompt-header">
         <div class="prompt-title">
-          <span>✨ Khung Nhập Ý Tưởng Video AI Đa Thể Loại (Nhập trực tiếp bằng Tiếng Việt)</span>
+          <span>✨ Nhập Ý Tưởng Bất Kỳ — AI Sẽ Tự Viết Kịch Bản Mới Hoàn Toàn & Vẽ Minh Họa Cho Từng Cảnh</span>
         </div>
-        <span class="prompt-badge">Tự động nhận diện: Video Hướng Dẫn 2D · Storyboard Đa Cảnh · Thời lượng 5s – 600s</span>
+        <span class="prompt-badge">Không dùng mẫu cố định · Độc lập Giọng Đọc & Phụ Đề · 5s – 600s</span>
       </div>
 
       <div class="prompt-input-row">
         <textarea
           id="promptInput"
           class="prompt-textarea"
-          placeholder="Nhập bất kỳ chủ đề nào... VD: làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s"
-        >làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s</textarea>
-        <button class="btn btn-secondary" id="btnAnalyzeAI" onclick="applyPromptOnly()" title="AI tự động viết kịch bản 5 phân cảnh 2D & lời thoại ngay trên App (Không cần mở Antigravity, Không cần API Key, 0 tốn phí)">
-          🪄 AI Tự Viết Kịch Bản Đa Cảnh (Ngay Trên App)
+          placeholder="Nhập chủ đề bất kỳ bạn muốn sáng tạo... (VD: làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s)"
+        ></textarea>
+        <button class="btn btn-secondary" id="btnAnalyzeAI" onclick="applyPromptOnly()">
+          🪄 AI Viết Kịch Bản & Vẽ Các Cảnh
         </button>
-        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()" title="AI tự động viết kịch bản, tạo giọng đọc Tiếng Việt và xuất video MP4 ngay trên App">
-          🚀 AI Tự Viết & Xuất Video Ngay (100% Trên App)
+        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()">
+          🚀 AI Viết Kịch Bản & Xuất MP4 Ngay
         </button>
       </div>
 
-      <div class="prompt-chips">
-        <span class="chip-label">💡 Mẫu thử 1-Click:</span>
-        <button class="chip chip-highlight" onclick="setSamplePrompt('làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s')">
-          🎬 Hướng dẫn cài Agent GitHub 2D (~60s · Nhạc nhẹ Lo-Fi)
-        </button>
-        <button class="chip" onclick="setSamplePrompt('Làm 1 video hướng dẫn 5 bước tự động hóa công việc bằng AI, hình ảnh hoạt hình 2D động màu xanh lá, nhạc nền nhẹ vui tai, ~45s')">
-          💡 Chia sẻ 5 Bước Tự Động Hóa AI 2D (~45s)
-        </button>
-        <button class="chip" onclick="setSamplePrompt('Làm clip giới thiệu công cụ làm việc thông minh cho người mới, hoạt hình 2D động màu tím hồng, nhạc nhẹ vui tai, ~30s')">
-          🚀 Giới Thiệu Sản Phẩm / Công Cụ 2D (~30s)
-        </button>
-        <button class="chip" onclick="setSamplePrompt('Chó Shiba mặc giáp vàng nhảy hiphop tia sét cực sung nói &quot;Gâu gâu! Chó Shiba siêu nhân vũ trụ chào cả nhà!&quot;')">
-          🐕 Nhân Vật 3D: Chó Shiba Nhảy HipHop (6s)
-        </button>
-        <button class="chip" onclick="setSamplePrompt('Robot Gundam giáp đỏ múa võ vòng hào quang giọng nam')">
-          🤖 Nhân Vật 3D: Robot Gundam Múa Võ (6s)
-        </button>
+      <div class="prompt-options-row">
+        <div class="prompt-chips">
+          <span class="chip-label">💡 Gợi ý nhanh (Không bắt buộc):</span>
+          <button class="chip" onclick="fillPrompt('làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s')">
+            💻 Hướng dẫn cài Agent từ GitHub (~60s)
+          </button>
+          <button class="chip" onclick="fillPrompt('Hướng dẫn 5 bước pha cà phê phin ngon chuẩn vị Sài Gòn, hoạt hình 2D động, nhạc nền nhẹ vui tai, ~45s')">
+            ☕ Cách pha cà phê phin Sài Gòn (~45s)
+          </button>
+          <button class="chip" onclick="fillPrompt('Giải thích nguyên lý hoạt động của Blockchain cho người mới bắt đầu, trực quan dễ hiểu, ~60s')">
+            🔗 Giải thích Blockchain dễ hiểu (~60s)
+          </button>
+        </div>
+
+        <label style="font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="chkCloudImage" style="accent-color: var(--accent); width: 15px; height: 15px;" />
+          <span>🖼️ Kết hợp gọi Cloud AI vẽ tranh 2D cho từng cảnh (Mặc định: Vẽ Vector 2D tức thì)</span>
+        </label>
       </div>
 
       <div id="promptFeedback" class="prompt-feedback"></div>
@@ -642,72 +655,140 @@
   <!-- MAIN 3-COLUMN WORKSPACE -->
   <div class="workspace">
 
-    <!-- CỘT 1: CHỌN CHẾ ĐỘ VIDEO & GIẢI ĐÁP ĐA MÁY / THỜI LƯỢNG -->
+    <!-- CỘT 1: CẤU HÌNH DỰ ÁN SÁNG TẠO (KHÔNG CỐ ĐỊNH MẪU) -->
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">1. Chọn Chế Độ Dựng Video</span>
-        <span class="step-badge">Bước 1/3</span>
+        <span class="panel-title">1. Cấu Hình Âm Thanh, Sub & Đồ Họa</span>
+        <span class="step-badge">Độc lập 100%</span>
       </div>
 
-      <div class="template-list">
-        <div class="template-card active" id="card-UniversalVideo" onclick="selectTemplate('UniversalVideo')">
-          <span class="template-tag">KHUYÊN DÙNG · HOẠT HÌNH 2D ĐỘNG & ĐA CẢNH</span>
-          <div class="template-name">🎬 Video Đa Năng 2D/3D (Đa Phân Cảnh)</div>
-          <div class="template-desc">
-            Dành cho clip <b>Hướng dẫn cài đặt, Chia sẻ kiến thức, Top List, Kể chuyện, Quảng cáo</b>. Có sơ đồ Flowchart 2D, cửa sổ lệnh Terminal, thanh tiến trình, Checklist, nhạc nền Lo-Fi vui tai & phụ đề Karaoke (<b>5 giây → 600 giây</b>).
-          </div>
-        </div>
+      <div class="section-divider">🎙️ Chế Độ Giọng Thoại & Phụ Đề (Tách Riêng)</div>
+      <div class="toggle-grid">
+        <label class="toggle-card on" id="cardToggleVoice">
+          <span>🎙️ Giọng Đọc AI</span>
+          <input
+            type="checkbox"
+            id="uni_batGiongDoc"
+            checked
+            onchange="document.getElementById('cardToggleVoice').classList.toggle('on', this.checked)"
+          />
+        </label>
+        <label class="toggle-card on" id="cardToggleSub">
+          <span>💬 Phụ Đề Chữ (Sub)</span>
+          <input
+            type="checkbox"
+            id="uni_batPhuDe"
+            checked
+            onchange="document.getElementById('cardToggleSub').classList.toggle('on', this.checked)"
+          />
+        </label>
+      </div>
 
-        <div class="template-card" id="card-MechaCatDance" onclick="selectTemplate('MechaCatDance')">
-          <span class="template-tag">NHÂN VẬT 3D · VŨ ĐẠO THEO NHẠC</span>
-          <div class="template-name">🕺 Nhân Vật 3D Nhảy (Mèo / Shiba / Gundam)</div>
-          <div class="template-desc">
-            Chuyên dựng các clip ngắn nhân vật 3D (Mèo Mecha, Chó Shiba, Robot Gundam, Phi Hành Gia) nhảy Disco, HipHop, Breakdance, Múa Võ.
-          </div>
+      <div class="field-row-2">
+        <div class="field">
+          <label>Người đọc (TTS)</label>
+          <select id="uni_giongDoc" class="input-select">
+            <option value="vi-VN-HoaiMyNeural">👩 Nữ — Hoài My</option>
+            <option value="vi-VN-NamMinhNeural">👨 Nam — Nam Minh</option>
+          </select>
         </div>
-
-        <div class="template-card" id="card-Argon20ReposReady" onclick="selectTemplate('Argon20ReposReady')">
-          <span class="template-tag">INTRO 3D · CÔNG NGHỆ</span>
-          <div class="template-name">⚡ Intro Hệ Thống 30 Repo AI</div>
-          <div class="template-desc">
-            Video mở đầu giới thiệu thương hiệu công nghệ với khối cầu đa diện 3D xoay và lưới Vector.
-          </div>
+        <div class="field">
+          <label>Nhạc nền (BGM)</label>
+          <select id="uni_kieuNhacNen" class="input-select">
+            <option value="chill">🎵 Nhẹ Vui Tai (Lo-Fi)</option>
+            <option value="energetic">⚡ Sôi Động (EDM)</option>
+            <option value="off">🔇 Tắt Nhạc Nền</option>
+          </select>
         </div>
       </div>
 
-      <div class="guide-box">
-        <h4>⏱️ Video dài tối đa bao nhiêu giây?</h4>
-        <ul>
-          <li>Thanh trượt hỗ trợ chỉnh trực tiếp từ <b>5 giây đến 600 giây (10 phút)</b>.</li>
-          <li><b>Tự động khớp giọng đọc:</b> Nếu lời thoại dài, hệ thống tự đo độ dài file âm thanh để kéo dài thời lượng video tương ứng, không bao giờ bị cắt ngang lời nói.</li>
-        </ul>
+      <div class="section-divider">🎬 Thời Lượng & Phong Cách Hình Ảnh</div>
+
+      <div class="field">
+        <label>
+          Thời lượng mục tiêu
+          <span id="uni_thoiLuongVal">60 giây (1 phút 00s)</span>
+        </label>
+        <input
+          type="range"
+          id="uni_thoiLuongGiay"
+          min="5"
+          max="600"
+          step="5"
+          value="60"
+          oninput="updateDurationLabel(this.value)"
+        />
       </div>
 
-      <div class="guide-box">
-        <h4>💻 Dùng trên máy tính khác như thế nào?</h4>
-        <ul>
-          <li><b>Cách 1 (Cùng Wi-Fi/LAN):</b> Mở đường dẫn <b id="lanUrlText" style="color: var(--cyan);">http://localhost:4000</b> trên bất kỳ máy tính hay điện thoại nào cùng mạng.</li>
-          <li><b>Cách 2 (Chép sang máy mới độc lập):</b> Kéo từ GitHub về máy mới và nháy đúp ứng dụng <b><code>Chill Argon Studio.exe</code></b> (có Logo riêng) là chạy ngay!</li>
-        </ul>
+      <div class="field-row-2">
+        <div class="field">
+          <label>Phong cách chủ đạo</label>
+          <select id="uni_theLoai" class="input-select">
+            <option value="cong-nghe">💻 Hướng Dẫn / Quy Trình</option>
+            <option value="kien-thuc">💡 Kiến Thức / Giải Thích</option>
+            <option value="ke-chuyen">📖 Kể Chuyện / Podcast</option>
+            <option value="quang-cao">🚀 Giới Thiệu / Promo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Chế độ kết xuất</label>
+          <select id="uni_hienThi3D" class="input-select">
+            <option value="false">🎨 Hoạt Hình 2D + Ảnh Cảnh</option>
+            <option value="true">🧊 Không Gian Khối 3D</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tên Kênh / Dòng Nhãn Trên Cùng</label>
+        <input type="text" id="uni_tenKenh" class="input-text" value="CHILL ARGON STUDIO · 2D MOTION" />
+      </div>
+
+      <div class="section-divider">🎨 Bảng Màu Đồ Họa</div>
+      <div class="color-row">
+        <div class="color-box">
+          <span>Màu Nhấn Chính</span>
+          <input type="color" id="uni_mauChuDao" value="#d4ff47" />
+        </div>
+        <div class="color-box">
+          <span>Màu Phụ 2D</span>
+          <input type="color" id="uni_mauPhu" value="#00f0ff" />
+        </div>
+        <div class="color-box">
+          <span>Màu Nền</span>
+          <input type="color" id="uni_mauNen" value="#0b0f19" />
+        </div>
+      </div>
+
+      <div style="margin-top: auto; padding-top: 8px;">
+        <button id="renderBtn" class="btn btn-primary" onclick="triggerRender()">
+          🚀 Kết Xuất Video MP4 Theo Kịch Bản Này
+        </button>
       </div>
     </div>
 
-    <!-- CỘT 2: XEM VIDEO & TIẾN TRÌNH -->
+    <!-- CỘT 2: MÀN HÌNH XEM VIDEO (KHÔNG TỰ BẬT VIDEO CŨ KHÔNG LIÊN QUAN) -->
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">2. Màn Hình Xem & Tải Video MP4</span>
-        <span class="step-badge">Bước 2/3</span>
+        <span class="panel-title">2. Màn Hình Xem & Xuất Bản MP4</span>
+        <span class="step-badge">1080×1920 · 30 FPS</span>
       </div>
 
       <div class="player-wrapper">
-        <video id="videoPlayer" controls autoplay loop playsinline src="/out/cho-shiba-hiphop.mp4"></video>
+        <div id="emptyPlayerState" class="empty-player-state">
+          <div class="empty-icon">🎬</div>
+          <h3 style="font-size: 16px; color: #fff;">Dự Án Sáng Tạo Mới Đang Sẵn Sàng</h3>
+          <p style="font-size: 13px; color: var(--muted); line-height: 1.5;">
+            Nhập ý tưởng của bạn ở khung trên cùng và bấm <b>"🪄 AI Viết Kịch Bản & Vẽ Các Cảnh"</b> hoặc <b>"🚀 AI Viết Kịch Bản & Xuất MP4 Ngay"</b>. Video mới của bạn sẽ xuất hiện tại đây sau khi kết xuất!
+          </p>
+        </div>
 
-        <div class="player-bar">
-          <div class="video-meta" id="currentVideoLabel">
-            Đang phát: <b>cho-shiba-hiphop.mp4</b> (1080×1920 · 30 FPS)
-          </div>
+        <video id="videoPlayer" controls autoplay loop playsinline></video>
+
+        <div class="player-bar" id="playerBar">
+          <div class="video-meta" id="currentVideoLabel"></div>
           <div style="display: flex; gap: 8px;">
-            <a id="downloadLink" class="btn btn-secondary" href="/out/cho-shiba-hiphop.mp4" download="video-ai.mp4">
+            <a id="downloadLink" class="btn btn-secondary" href="#" download="video-ai.mp4">
               ⬇️ Tải Video MP4 Về Máy
             </a>
           </div>
@@ -716,256 +797,63 @@
 
       <div class="progress-card">
         <div class="progress-top">
-          <span id="stageText">Sẵn sàng dựng video mới</span>
-          <span id="progressPct" style="color: var(--accent);">100%</span>
+          <span id="stageText">Sẵn sàng — Hãy nhập Prompt để AI sáng tạo kịch bản & hình ảnh mới</span>
+          <span id="progressPct" style="color: var(--accent);">0%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill" id="progressBar" style="width: 100%;"></div>
+          <div class="progress-fill" id="progressBar" style="width: 0%;"></div>
         </div>
       </div>
 
       <div>
         <div style="font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 7px;">
-          🎞️ CÁC VIDEO ĐÃ KẾT XUẤT TRONG THƯ MỤC <code>out/</code> (Bấm để xem ngay):
+          🎞️ LỊCH SỬ VIDEO ĐÃ XUẤT TRONG THƯ MỤC <code>out/</code> (Bấm "▶️ Phát" nếu muốn xem lại):
         </div>
         <div class="history-list" id="videoHistoryList"></div>
       </div>
     </div>
 
-    <!-- CỘT 3: BẢNG ĐIỀU KHIỂN KỊCH BẢN & ĐỒ HỌA 2D/3D -->
+    <!-- CỘT 3: KỊCH BẢN CHI TIẾT & HÌNH ẢNH TỪNG PHÂN CẢNH -->
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">3. Chỉnh Sửa Kịch Bản & Phân Cảnh</span>
-        <span class="step-badge">Bước 3/3</span>
+        <span class="panel-title">3. Kịch Bản & Hình Ảnh Từng Phân Cảnh</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11.5px;" onclick="regenerateAllSceneImages()">
+          🎨 Vẽ Lại Ảnh Các Cảnh
+        </button>
       </div>
 
-      <!-- FORM A: UNIVERSAL VIDEO (ĐA NĂNG 2D/3D ĐA CẢNH) -->
-      <div id="form-UniversalVideo" class="form-scroll">
-        <div class="section-divider">🎬 Cấu Hình Chung & Thời Lượng (5s – 600s)</div>
-
-        <div class="field-row-2">
-          <div class="field">
-            <label>Thể loại video</label>
-            <select id="uni_theLoai" class="input-select">
-              <option value="cong-nghe">💻 Hướng Dẫn Công Nghệ / Code</option>
-              <option value="kien-thuc">💡 Chia Sẻ Kiến Thức / Top List</option>
-              <option value="ke-chuyen">📖 Kể Chuyện / Podcast</option>
-              <option value="quang-cao">🚀 Giới Thiệu Sản Phẩm / Promo</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Phong cách Đồ họa</label>
-            <select id="uni_hienThi3D" class="input-select">
-              <option value="false">🎨 Hoạt Hình 2D Động Trực Quan</option>
-              <option value="true">🧊 Kết Hợp Khối 3D Không Gian</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>
-            Thời lượng video (Giây)
-            <span id="uni_thoiLuongVal">60 giây (1 phút 00s)</span>
-          </label>
-          <input
-            type="range"
-            id="uni_thoiLuongGiay"
-            min="5"
-            max="600"
-            step="5"
-            value="60"
-            oninput="updateDurationLabel(this.value)"
-          />
-        </div>
-
+      <div class="form-scroll">
         <div class="field">
           <label>Tiêu đề chính của Video</label>
-          <input type="text" id="uni_tieuDeChinh" class="input-text" value="Hướng Dẫn Cài Đặt Agent Từ GitHub A → Z" />
-        </div>
-
-        <div class="field">
-          <label>Tên Kênh / Nhãn Phụ (Trên cùng)</label>
-          <input type="text" id="uni_tenKenh" class="input-text" value="HƯỚNG DẪN AI TRỰC QUAN · 2D MOTION" />
-        </div>
-
-        <div class="section-divider">🎙️ Lồng Tiếng AI Tiếng Việt & Nhạc Nền</div>
-
-        <div class="field-row-2">
-          <div class="field">
-            <label>Giọng đọc AI (TTS)</label>
-            <select id="uni_giongDoc" class="input-select">
-              <option value="vi-VN-HoaiMyNeural">👩 Nữ — Hoài My (Tự nhiên)</option>
-              <option value="vi-VN-NamMinhNeural">👨 Nam — Nam Minh (Trầm ấm)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Nhạc nền (BGM)</label>
-            <select id="uni_kieuNhacNen" class="input-select">
-              <option value="chill">🎵 Nhẹ Nhàng Vui Tai (Lo-Fi Chill)</option>
-              <option value="energetic">⚡ Sôi Động Cyberpunk (EDM Beat)</option>
-              <option value="off">🔇 Tắt Nhạc Nền</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>
-            Lời thoại thuyết minh & Phụ đề Karaoke
-            <span><input type="checkbox" id="uni_batGiongDoc" checked /> Bật giọng đọc</span>
-          </label>
-          <textarea id="uni_loiThoai" class="input-area"></textarea>
-        </div>
-
-        <div class="section-divider">📑 Danh Sách Các Phân Cảnh 2D (Tự Chia Đều Thời Gian)</div>
-        <div id="uni_sceneContainer" class="scene-list"></div>
-        <button type="button" class="btn-add-scene" onclick="addUniversalScene()">
-          + Thêm Phân Cảnh 2D Mới
-        </button>
-
-        <div class="section-divider">🎨 Bảng Màu Chủ Đạo</div>
-        <div class="color-row">
-          <div class="color-box">
-            <span>Màu Nhấn Chính</span>
-            <input type="color" id="uni_mauChuDao" value="#d4ff47" />
-          </div>
-          <div class="color-box">
-            <span>Màu Phụ 2D</span>
-            <input type="color" id="uni_mauPhu" value="#00f0ff" />
-          </div>
-          <div class="color-box">
-            <span>Màu Nền</span>
-            <input type="color" id="uni_mauNen" value="#0b0f19" />
-          </div>
-        </div>
-      </div>
-
-      <!-- FORM B: MECHA CAT DANCE (NHÂN VẬT 3D NHẢY) -->
-      <div id="form-MechaCatDance" class="form-scroll" style="display: none;">
-        <div class="section-divider">🤖 Chọn Nhân Vật 3D & Động Tác Vũ Đạo</div>
-
-        <div class="field">
-          <label>Nhân vật 3D chủ đạo</label>
-          <select id="mc_nhanVat3D" class="input-select">
-            <option value="meo-mecha">🐱 Mèo Siêu Nhân Mecha (Tai mèo phát sáng)</option>
-            <option value="cho-shiba">🐕 Chó Shiba Siêu Cấp (Tai cún & Đuôi vẫy)</option>
-            <option value="robot-gundam">🤖 Chiến Binh Robot Gundam (Sừng V-Fin)</option>
-            <option value="phi-hanh-gia">👩‍🚀 Phi Hành Gia Vũ Trụ (Mũ kính vòm)</option>
-          </select>
-        </div>
-
-        <div class="field-row-2">
-          <div class="field">
-            <label>Kiểu nhảy 3D</label>
-            <select id="mc_kieuNhay" class="input-select">
-              <option value="disco">🕺 Nhảy Disco Sôi Động</option>
-              <option value="hiphop">🔥 Nhảy Hip-Hop Đường Phố</option>
-              <option value="breakdance">🌀 Xoay Vũ Trụ 360°</option>
-              <option value="martial">⚡ Múa Võ Siêu Nhân</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Hiệu ứng phụ kiện</label>
-            <select id="mc_hieuUngDacBiet" class="input-select">
-              <option value="canh-nang-luong">🪽 Cánh Năng Lượng</option>
-              <option value="vong-hao-quang">💫 Vòng Hào Quang</option>
-              <option value="tia-set">⚡ Quả Cầu Tia Sét</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Tên nhân vật hiển thị</label>
-          <input type="text" id="mc_tenSieuNhan" class="input-text" value="MECHA NEKO-X9" />
-        </div>
-
-        <div class="field">
-          <label>Khẩu hiệu bên dưới</label>
-          <input type="text" id="mc_khauHieu" class="input-text" value="Siêu Nhân Mèo Mecha · Quẩy Cực Sung!" />
-        </div>
-
-        <div class="field">
-          <label>Lời thoại giọng đọc AI Tiếng Việt</label>
-          <textarea id="mc_loiThoai" class="input-area">Xin chào các bạn! Mình là Mèo Siêu Nhân Mecha đây, cùng quẩy thật sung nhé!</textarea>
-        </div>
-
-        <div class="field-row-2">
-          <div class="field">
-            <label>Giọng đọc AI</label>
-            <select id="mc_giongDoc" class="input-select">
-              <option value="vi-VN-HoaiMyNeural">👩 Nữ — Hoài My</option>
-              <option value="vi-VN-NamMinhNeural">👨 Nam — Nam Minh</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Chế độ lồng tiếng</label>
-            <select id="mc_batGiongDoc" class="input-select">
-              <option value="true">🔊 Bật giọng đọc + Phụ đề</option>
-              <option value="false">🎵 Chỉ phát nhạc nền</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>
-            Tốc độ nhảy
-            <span id="mc_tocDoNhayVal">1.0x</span>
-          </label>
           <input
-            type="range"
-            id="mc_tocDoNhay"
-            min="0.5"
-            max="2.0"
-            step="0.1"
-            value="1.0"
-            oninput="document.getElementById('mc_tocDoNhayVal').innerText = this.value + 'x'"
+            type="text"
+            id="uni_tieuDeChinh"
+            class="input-text"
+            placeholder="AI sẽ tự điền tiêu đề hoặc bạn tự nhập tại đây..."
           />
         </div>
 
-        <div class="color-row">
-          <div class="color-box">
-            <span>Màu Giáp</span>
-            <input type="color" id="mc_mauGiapChinh" value="#cbd5e1" />
-          </div>
-          <div class="color-box">
-            <span>Màu Năng Lượng</span>
-            <input type="color" id="mc_mauNangLuong" value="#00f0ff" />
-          </div>
-          <div class="color-box">
-            <span>Màu Áo Choàng</span>
-            <input type="color" id="mc_mauAoChoang" value="#ff0055" />
-          </div>
+        <div class="field">
+          <label>
+            Lời thoại thuyết minh & Nội dung Phụ đề
+            <span>Độc lập Bật/Tắt ở Cột 1</span>
+          </label>
+          <textarea
+            id="uni_loiThoai"
+            class="input-area"
+            placeholder="AI sẽ tự viết lời thoại khớp với tất cả các phân cảnh, hoặc bạn tự nhập lời thoại tại đây..."
+          ></textarea>
         </div>
-      </div>
 
-      <!-- FORM C: ARGON 20 REPOS -->
-      <div id="form-Argon20ReposReady" class="form-scroll" style="display: none;">
-        <div class="field">
-          <label>Tiêu đề chính</label>
-          <input type="text" id="ar_tieuDeChinh" class="input-text" value="20 repo GitHub" />
+        <div class="section-divider">
+          <span>📑 Danh Sách Các Phân Cảnh (Cảnh 1 → Cảnh N)</span>
+          <span id="sceneCountBadge" style="color: var(--accent);">0 cảnh</span>
         </div>
-        <div class="field">
-          <label>Tiêu đề phụ</label>
-          <input type="text" id="ar_tieuDePhu" class="input-text" value="Argon tự làm video A → Z" />
-        </div>
-        <div class="field">
-          <label>Dòng ghi chú dưới cùng</label>
-          <input type="text" id="ar_dongGhiChu" class="input-text" value="> /skills · gemini-4-argon" />
-        </div>
-        <div class="color-row">
-          <div class="color-box">
-            <span>Màu Chủ Đạo</span>
-            <input type="color" id="ar_mauChuDao" value="#d4ff47" />
-          </div>
-          <div class="color-box">
-            <span>Màu Nền</span>
-            <input type="color" id="ar_mauNen" value="#0a0a0a" />
-          </div>
-        </div>
-      </div>
 
-      <div style="margin-top: auto; padding-top: 8px;">
-        <button id="renderBtn" class="btn btn-primary" onclick="triggerRender()">
-          🚀 Bấm Để Kết Xuất Video MP4 Mới
+        <div id="uni_sceneContainer" class="scene-list"></div>
+
+        <button type="button" class="btn-add-scene" onclick="addUniversalScene()">
+          + Thêm Phân Cảnh Mới
         </button>
       </div>
     </div>
@@ -973,7 +861,6 @@
   </div>
 
   <script>
-    let activeTemplate = 'UniversalVideo';
     let lastKnownUpdate = 0;
     let universalScenes = [];
 
@@ -985,19 +872,65 @@
       document.getElementById('uni_thoiLuongVal').innerText = label;
     }
 
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fillPrompt(text) {
+      document.getElementById('promptInput').value = text;
+    }
+
+    function resetBlankWorkspace() {
+      document.getElementById('promptInput').value = '';
+      document.getElementById('uni_tieuDeChinh').value = '';
+      document.getElementById('uni_loiThoai').value = '';
+      universalScenes = [];
+      renderUniversalScenesEditor();
+      const player = document.getElementById('videoPlayer');
+      player.pause();
+      player.style.display = 'none';
+      document.getElementById('playerBar').style.display = 'none';
+      document.getElementById('emptyPlayerState').style.display = 'flex';
+      document.getElementById('promptFeedback').style.display = 'none';
+    }
+
     function renderUniversalScenesEditor() {
       const container = document.getElementById('uni_sceneContainer');
-      container.innerHTML = universalScenes.map((scene, idx) => `
+      document.getElementById('sceneCountBadge').innerText = `${universalScenes.length} cảnh`;
+
+      if (universalScenes.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 22px; border: 1px dashed #2b395c; border-radius: 12px; text-align: center; color: var(--muted); font-size: 12.5px; line-height: 1.5;">
+            Chưa có phân cảnh nào.<br/>Hãy nhập ý tưởng ở khung trên cùng và bấm <b>"🪄 AI Viết Kịch Bản & Vẽ Các Cảnh"</b> (hoặc bấm <b>"+ Thêm Phân Cảnh Mới"</b> bên dưới).
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = universalScenes.map((scene, idx) => {
+        const imgSrc = scene.hinhAnhCanh ? `/public/${scene.hinhAnhCanh}?t=${Date.now()}` : '';
+        return `
         <div class="scene-item">
           <div class="scene-item-header">
-            <span>PHÂN CẢNH #${idx + 1}</span>
+            <span>🎬 PHÂN CẢNH #${idx + 1}</span>
             ${universalScenes.length > 1 ? `<button type="button" class="btn-mini" onclick="removeUniversalScene(${idx})">✕ Xóa cảnh</button>` : ''}
           </div>
+
+          ${imgSrc ? `
+            <div class="scene-thumb-wrap" title="Hình ảnh minh họa 2D riêng của Phân cảnh #${idx + 1}">
+              <img src="${imgSrc}" alt="Minh họa cảnh ${idx + 1}" />
+            </div>
+          ` : ''}
+
           <div class="field-row-2">
             <input
               type="text"
               class="input-text"
-              placeholder="Nhãn bước (VD: BƯỚC 01)"
+              placeholder="Nhãn cảnh (VD: CẢNH 01)"
               value="${escapeHtml(scene.nhanPhu || '')}"
               oninput="universalScenes[${idx}].nhanPhu = this.value"
             />
@@ -1005,6 +938,7 @@
               class="input-select"
               onchange="universalScenes[${idx}].loaiMinhHoa2D = this.value"
             >
+              <option value="illustration" ${scene.loaiMinhHoa2D === 'illustration' ? 'selected' : ''}>🖼️ Ảnh Minh Họa 2D + Điểm Nhấn</option>
               <option value="flowchart" ${scene.loaiMinhHoa2D === 'flowchart' ? 'selected' : ''}>🔀 Sơ đồ Flowchart 2D</option>
               <option value="terminal" ${scene.loaiMinhHoa2D === 'terminal' ? 'selected' : ''}>💻 Cửa sổ Lệnh Terminal</option>
               <option value="progress" ${scene.loaiMinhHoa2D === 'progress' ? 'selected' : ''}>📊 Thanh Tiến Trình %</option>
@@ -1022,42 +956,34 @@
           <input
             type="text"
             class="input-text"
-            placeholder="Mô tả ngắn dưới tiêu đề..."
+            placeholder="Mô tả chi tiết của phân cảnh..."
             value="${escapeHtml(scene.noiDungCanh || '')}"
             oninput="universalScenes[${idx}].noiDungCanh = this.value"
           />
           <textarea
             class="input-area"
-            style="min-height: 58px; font-size: 12.5px;"
-            placeholder="Mỗi dòng là 1 ý minh họa động trên màn hình..."
+            style="min-height: 56px; font-size: 12.5px;"
+            placeholder="Mỗi dòng là 1 ý minh họa động trong phân cảnh này..."
             oninput="universalScenes[${idx}].duLieuMinhHoa = this.value.split('\\n').filter(Boolean)"
           >${escapeHtml((scene.duLieuMinhHoa || []).join('\n'))}</textarea>
         </div>
-      `).join('');
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      `;
+      }).join('');
     }
 
     function addUniversalScene() {
       const nextNum = universalScenes.length + 1;
       universalScenes.push({
-        nhanPhu: `BƯỚC 0${nextNum} // TIẾP THEO`,
-        tieuDeCanh: `${nextNum}. Bước Thực Hiện Tiếp Theo`,
-        noiDungCanh: "Mô tả ngắn gọn nội dung của phân cảnh này.",
-        loaiMinhHoa2D: "checklist",
+        nhanPhu: `CẢNH 0${nextNum} // NỘI DUNG`,
+        tieuDeCanh: `${nextNum}. Tiêu đề phân cảnh ${nextNum}`,
+        noiDungCanh: "Mô tả nội dung diễn ra trong phân cảnh này.",
+        loaiMinhHoa2D: "illustration",
         duLieuMinhHoa: [
-          "Ý chính thứ nhất trong phân cảnh",
-          "Ý chính thứ hai trực quan dễ nhớ",
-          "Hoàn thành bước thực hiện"
+          `Điểm nhấn chính của phân cảnh ${nextNum}`,
+          `Chi tiết bổ trợ trực quan`
         ]
       });
-      renderUniversalScenesEditor();
+      regenerateAllSceneImages();
     }
 
     function removeUniversalScene(idx) {
@@ -1066,103 +992,104 @@
       renderUniversalScenesEditor();
     }
 
-    function selectTemplate(id) {
-      activeTemplate = id;
-      ['UniversalVideo', 'MechaCatDance', 'Argon20ReposReady'].forEach((t) => {
-        const card = document.getElementById('card-' + t);
-        const form = document.getElementById('form-' + t);
-        if (card) card.classList.toggle('active', t === id);
-        if (form) form.style.display = t === id ? 'flex' : 'none';
-      });
+    function collectCurrentProps() {
+      const kieuNhacNen = document.getElementById('uni_kieuNhacNen').value;
+      return {
+        theLoai: document.getElementById('uni_theLoai').value,
+        tieuDeChinh: document.getElementById('uni_tieuDeChinh').value.trim() || 'Video Sáng Tạo Mới',
+        tenKenh: document.getElementById('uni_tenKenh').value.trim() || 'CHILL ARGON STUDIO',
+        loiThoai: document.getElementById('uni_loiThoai').value.trim(),
+        batGiongDoc: document.getElementById('uni_batGiongDoc').checked,
+        batPhuDe: document.getElementById('uni_batPhuDe').checked,
+        kieuNhacNen,
+        batNhacNen: kieuNhacNen !== 'off',
+        thoiLuongGiay: parseInt(document.getElementById('uni_thoiLuongGiay').value, 10) || 60,
+        mauChuDao: document.getElementById('uni_mauChuDao').value,
+        mauPhu: document.getElementById('uni_mauPhu').value,
+        mauNen: document.getElementById('uni_mauNen').value,
+        hienThi3D: document.getElementById('uni_hienThi3D').value === 'true',
+        cacPhanCanh: universalScenes
+      };
     }
 
-    function setSamplePrompt(text) {
-      document.getElementById('promptInput').value = text;
-      applyPromptOnly();
-    }
+    async function regenerateAllSceneImages() {
+      if (universalScenes.length === 0) return;
+      const props = collectCurrentProps();
+      const useCloudImage = document.getElementById('chkCloudImage').checked;
+      const fb = document.getElementById('promptFeedback');
+      fb.style.display = 'block';
+      fb.style.color = '#d4ff47';
+      fb.innerText = '🎨 Đang vẽ lại hình ảnh minh họa 2D riêng cho từng phân cảnh...';
 
-    function populateFormFromProps(compositionId, props, giongDoc) {
-      selectTemplate(compositionId);
-
-      if (compositionId === 'UniversalVideo') {
-        document.getElementById('uni_theLoai').value = props.theLoai || 'cong-nghe';
-        document.getElementById('uni_hienThi3D').value = String(props.hienThi3D === true);
-        document.getElementById('uni_thoiLuongGiay').value = props.thoiLuongGiay || 60;
-        updateDurationLabel(props.thoiLuongGiay || 60);
-        document.getElementById('uni_tieuDeChinh').value = props.tieuDeChinh || '';
-        document.getElementById('uni_tenKenh').value = props.tenKenh || '';
-        document.getElementById('uni_loiThoai').value = props.loiThoai || '';
-        document.getElementById('uni_batGiongDoc').checked = props.batGiongDoc !== false;
-        document.getElementById('uni_kieuNhacNen').value = props.kieuNhacNen || 'chill';
-        document.getElementById('uni_mauChuDao').value = props.mauChuDao || '#d4ff47';
-        document.getElementById('uni_mauPhu').value = props.mauPhu || '#00f0ff';
-        document.getElementById('uni_mauNen').value = props.mauNen || '#0b0f19';
-        if (giongDoc) document.getElementById('uni_giongDoc').value = giongDoc;
-        universalScenes = Array.isArray(props.cacPhanCanh) && props.cacPhanCanh.length > 0
-          ? JSON.parse(JSON.stringify(props.cacPhanCanh))
-          : [];
-        renderUniversalScenesEditor();
-      } else if (compositionId === 'MechaCatDance') {
-        document.getElementById('mc_nhanVat3D').value = props.nhanVat3D || 'meo-mecha';
-        document.getElementById('mc_kieuNhay').value = props.kieuNhay || 'disco';
-        document.getElementById('mc_hieuUngDacBiet').value = props.hieuUngDacBiet || 'canh-nang-luong';
-        document.getElementById('mc_tenSieuNhan').value = props.tenSieuNhan || '';
-        document.getElementById('mc_khauHieu').value = props.khauHieu || '';
-        document.getElementById('mc_loiThoai').value = props.loiThoai || '';
-        document.getElementById('mc_batGiongDoc').value = String(props.batGiongDoc !== false);
-        document.getElementById('mc_mauGiapChinh').value = props.mauGiapChinh || '#cbd5e1';
-        document.getElementById('mc_mauNangLuong').value = props.mauNangLuong || '#00f0ff';
-        document.getElementById('mc_mauAoChoang').value = props.mauAoChoang || '#ff0055';
-        document.getElementById('mc_tocDoNhay').value = props.tocDoNhay || 1;
-        document.getElementById('mc_tocDoNhayVal').innerText = (props.tocDoNhay || 1) + 'x';
-        if (giongDoc) document.getElementById('mc_giongDoc').value = giongDoc;
-      }
-    }
-
-    let lastArgonCompleteTime = 0;
-
-    async function sendToArgonBridge() {
-      const prompt = document.getElementById('promptInput').value.trim();
-      if (!prompt) return;
-      const res = await fetch('/api/argon-request', {
+      const res = await fetch('/api/regenerate-images', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, activeTemplate })
+        body: JSON.stringify({ props, useCloudImage })
       });
       const data = await res.json();
-      if (data.ok) {
-        try {
-          await navigator.clipboard.writeText(data.triggerCommand);
-        } catch (e) {}
-        const fb = document.getElementById('promptFeedback');
-        fb.style.display = 'block';
-        fb.style.color = '#d4ff47';
-        fb.innerText = '🤖 Đã truyền yêu cầu sang studio-ui/argon-request.json & ĐÃ COPY sẵn câu lệnh ("' + data.triggerCommand + '") vào bộ nhớ tạm! Bạn chỉ cần bấm Ctrl+V rồi Enter trong Antigravity để Argon (dùng limit sẵn có, 0 tốn phí API) tự thiết kế & dựng video!';
+      if (data.ok && data.props?.cacPhanCanh) {
+        universalScenes = data.props.cacPhanCanh;
+        renderUniversalScenesEditor();
+        fb.style.color = '#4ade80';
+        fb.innerText = '✓ Đã cập nhật hình ảnh minh họa 2D mới cho toàn bộ ' + universalScenes.length + ' phân cảnh!';
       }
+    }
+
+    function populateFormFromProps(props, giongDoc) {
+      document.getElementById('uni_theLoai').value = props.theLoai || 'cong-nghe';
+      document.getElementById('uni_hienThi3D').value = String(props.hienThi3D === true);
+      document.getElementById('uni_thoiLuongGiay').value = props.thoiLuongGiay || 60;
+      updateDurationLabel(props.thoiLuongGiay || 60);
+      document.getElementById('uni_tieuDeChinh').value = props.tieuDeChinh || '';
+      document.getElementById('uni_tenKenh').value = props.tenKenh || 'CHILL ARGON STUDIO · 2D MOTION';
+      document.getElementById('uni_loiThoai').value = props.loiThoai || '';
+
+      const voiceOn = props.batGiongDoc !== false;
+      const subOn = props.batPhuDe !== false;
+      document.getElementById('uni_batGiongDoc').checked = voiceOn;
+      document.getElementById('uni_batPhuDe').checked = subOn;
+      document.getElementById('cardToggleVoice').classList.toggle('on', voiceOn);
+      document.getElementById('cardToggleSub').classList.toggle('on', subOn);
+
+      document.getElementById('uni_kieuNhacNen').value = props.kieuNhacNen || 'chill';
+      document.getElementById('uni_mauChuDao').value = props.mauChuDao || '#d4ff47';
+      document.getElementById('uni_mauPhu').value = props.mauPhu || '#00f0ff';
+      document.getElementById('uni_mauNen').value = props.mauNen || '#0b0f19';
+      if (giongDoc) document.getElementById('uni_giongDoc').value = giongDoc;
+
+      universalScenes = Array.isArray(props.cacPhanCanh)
+        ? JSON.parse(JSON.stringify(props.cacPhanCanh))
+        : [];
+      renderUniversalScenesEditor();
     }
 
     async function applyPromptOnly() {
       const prompt = document.getElementById('promptInput').value.trim();
-      if (!prompt) return;
+      if (!prompt) {
+        alert('Vui lòng nhập ý tưởng video vào ô Prompt trước nhé!');
+        return;
+      }
       const fb = document.getElementById('promptFeedback');
       const btn = document.getElementById('btnAnalyzeAI');
+      const useCloudImage = document.getElementById('chkCloudImage').checked;
+
       fb.style.display = 'block';
       fb.style.color = '#d4ff47';
-      fb.innerText = '⏳ AI đang tự động suy nghĩ kịch bản, chia 5 phân cảnh 2D & viết lời thuyết minh ngay trên App...';
+      fb.innerText = '⏳ AI đang sáng tạo kịch bản mới 100% (tất cả các cảnh 1 → 5) & vẽ hình minh họa 2D riêng cho từng cảnh...';
       if (btn) btn.disabled = true;
 
       try {
         const res = await fetch('/api/prompt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, autoRender: false, useCloudAI: true })
+          body: JSON.stringify({ prompt, autoRender: false, useCloudImage })
         });
         const data = await res.json();
         if (data.ok && data.parsed) {
-          populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
+          populateFormFromProps(data.parsed.props, data.parsed.giongDoc);
           fb.style.display = 'block';
           fb.style.color = '#00f0ff';
-          fb.innerText = '✨ ' + data.parsed.summary + ' — Bạn có thể xem/sửa từng phân cảnh ở Cột 3 hoặc bấm "🚀 Bấm Để Kết Xuất Video MP4 Mới"!';
+          fb.innerText = data.parsed.summary + ' — Kiểm tra từng cảnh + ảnh minh họa ở Cột 3, hoặc bấm "🚀 Kết Xuất Video MP4"!';
         }
       } finally {
         if (btn) btn.disabled = false;
@@ -1171,26 +1098,31 @@
 
     async function applyPromptAndRender() {
       const prompt = document.getElementById('promptInput').value.trim();
-      if (!prompt) return;
+      if (!prompt) {
+        alert('Vui lòng nhập ý tưởng video vào ô Prompt trước nhé!');
+        return;
+      }
       const fb = document.getElementById('promptFeedback');
       const btn = document.getElementById('btnPromptRender');
+      const useCloudImage = document.getElementById('chkCloudImage').checked;
+
       fb.style.display = 'block';
       fb.style.color = '#d4ff47';
-      fb.innerText = '⏳ AI đang tự biên kịch 5 phân cảnh 2D, tạo giọng đọc Tiếng Việt & chuẩn bị kết xuất MP4 ngay trên App...';
+      fb.innerText = '⏳ AI đang sáng tạo kịch bản mới 100%, vẽ hình minh họa 2D từng cảnh & chuẩn bị kết xuất MP4...';
       if (btn) btn.disabled = true;
 
       try {
         const res = await fetch('/api/prompt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, autoRender: true, useCloudAI: true })
+          body: JSON.stringify({ prompt, autoRender: true, useCloudImage })
         });
         const data = await res.json();
         if (data.ok && data.parsed) {
-          populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
+          populateFormFromProps(data.parsed.props, data.parsed.giongDoc);
           fb.style.display = 'block';
           fb.style.color = '#00f0ff';
-          fb.innerText = '🚀 ' + data.parsed.summary + ' — Đang tạo giọng đọc AI, ghép nhạc nền & kết xuất MP4!';
+          fb.innerText = '🚀 ' + data.parsed.summary + ' — Đang tiến hành kết xuất ra file MP4!';
           pollStatus();
         }
       } finally {
@@ -1199,9 +1131,14 @@
     }
 
     function playVideo(url, label) {
+      document.getElementById('emptyPlayerState').style.display = 'none';
       const player = document.getElementById('videoPlayer');
+      player.style.display = 'block';
       player.src = url;
       player.play().catch(() => {});
+
+      const bar = document.getElementById('playerBar');
+      bar.style.display = 'flex';
       document.getElementById('currentVideoLabel').innerHTML =
         `Đang phát: <b>${label}</b> (1080×1920 · 30 FPS)`;
       const dl = document.getElementById('downloadLink');
@@ -1214,62 +1151,22 @@
     }
 
     async function triggerRender() {
+      if (universalScenes.length === 0) {
+        await applyPromptAndRender();
+        return;
+      }
+
       const btn = document.getElementById('renderBtn');
       btn.disabled = true;
 
-      let props = {};
-      let giongDoc = 'vi-VN-HoaiMyNeural';
-
-      if (activeTemplate === 'UniversalVideo') {
-        giongDoc = document.getElementById('uni_giongDoc').value;
-        const kieuNhacNen = document.getElementById('uni_kieuNhacNen').value;
-        props = {
-          theLoai: document.getElementById('uni_theLoai').value,
-          tieuDeChinh: document.getElementById('uni_tieuDeChinh').value,
-          tenKenh: document.getElementById('uni_tenKenh').value,
-          loiThoai: document.getElementById('uni_loiThoai').value,
-          batGiongDoc: document.getElementById('uni_batGiongDoc').checked,
-          kieuNhacNen,
-          batNhacNen: kieuNhacNen !== 'off',
-          thoiLuongGiay: parseInt(document.getElementById('uni_thoiLuongGiay').value, 10) || 60,
-          mauChuDao: document.getElementById('uni_mauChuDao').value,
-          mauPhu: document.getElementById('uni_mauPhu').value,
-          mauNen: document.getElementById('uni_mauNen').value,
-          hienThi3D: document.getElementById('uni_hienThi3D').value === 'true',
-          cacPhanCanh: universalScenes
-        };
-      } else if (activeTemplate === 'MechaCatDance') {
-        giongDoc = document.getElementById('mc_giongDoc').value;
-        props = {
-          nhanVat3D: document.getElementById('mc_nhanVat3D').value,
-          kieuNhay: document.getElementById('mc_kieuNhay').value,
-          hieuUngDacBiet: document.getElementById('mc_hieuUngDacBiet').value,
-          tenSieuNhan: document.getElementById('mc_tenSieuNhan').value,
-          khauHieu: document.getElementById('mc_khauHieu').value,
-          loiThoai: document.getElementById('mc_loiThoai').value,
-          batGiongDoc: document.getElementById('mc_batGiongDoc').value === 'true',
-          mauGiapChinh: document.getElementById('mc_mauGiapChinh').value,
-          mauNangLuong: document.getElementById('mc_mauNangLuong').value,
-          mauAoChoang: document.getElementById('mc_mauAoChoang').value,
-          tocDoNhay: parseFloat(document.getElementById('mc_tocDoNhay').value)
-        };
-      } else {
-        props = {
-          tieuDeChinh: document.getElementById('ar_tieuDeChinh').value,
-          tieuDePhu: document.getElementById('ar_tieuDePhu').value,
-          dongGhiChu: document.getElementById('ar_dongGhiChu').value,
-          mauChuDao: document.getElementById('ar_mauChuDao').value,
-          mauNen: document.getElementById('ar_mauNen').value,
-          tocDoXoay3D: 1.0,
-          hienThi3D: true
-        };
-      }
+      const giongDoc = document.getElementById('uni_giongDoc').value;
+      const props = collectCurrentProps();
 
       try {
         const res = await fetch('/api/render', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ compositionId: activeTemplate, props, giongDoc })
+          body: JSON.stringify({ compositionId: 'UniversalVideo', props, giongDoc })
         });
         const data = await res.json();
         if (data.error) alert(data.error);
@@ -1285,28 +1182,7 @@
         const data = await res.json();
 
         if (data.lanUrl) {
-          document.getElementById('lanUrlPill').innerText = '🌐 Dùng trên máy khác (LAN): ' + data.lanUrl;
-          document.getElementById('lanUrlText').innerText = data.lanUrl;
-        }
-
-        if (
-          data.argonRequest &&
-          data.argonRequest.status === 'completed' &&
-          data.argonRequest.updatedAt &&
-          data.argonRequest.updatedAt !== lastArgonCompleteTime
-        ) {
-          lastArgonCompleteTime = data.argonRequest.updatedAt;
-          if (data.argonRequest.props) {
-            populateFormFromProps(
-              data.argonRequest.compositionId || 'UniversalVideo',
-              data.argonRequest.props,
-              data.argonRequest.giongDoc
-            );
-          }
-          const fb = document.getElementById('promptFeedback');
-          fb.style.display = 'block';
-          fb.style.color = '#4ade80';
-          fb.innerText = data.argonRequest.message || '✅ Argon (Antigravity) đã hoàn tất thiết kế kịch bản & gửi lệnh xuất video!';
+          document.getElementById('lanUrlPill').innerText = '🌐 Mạng LAN: ' + data.lanUrl;
         }
 
         const job = data.renderJob;
@@ -1323,9 +1199,10 @@
         btn.disabled = job.isRendering;
         btnPrompt.disabled = job.isRendering;
         btn.innerText = job.isRendering
-          ? '⏳ Đang dựng Video & Lồng tiếng AI (' + job.progress + '%)...'
-          : '🚀 Bấm Để Kết Xuất Video MP4 Mới';
+          ? '⏳ Đang kết xuất Video MP4 (' + job.progress + '%)...'
+          : '🚀 Kết Xuất Video MP4 Theo Kịch Bản Này';
 
+        // Only auto-play when a NEW render finishes during this session!
         if (!job.isRendering && job.updatedAt && job.updatedAt !== lastKnownUpdate) {
           if (lastKnownUpdate !== 0 && job.outputUrl) {
             const cleanName = job.outputUrl.split('/').pop().split('?')[0];
@@ -1343,10 +1220,10 @@
                 <span style="color: #94a3b8; margin-left: 8px;">${v.sizeMB} MB · Lúc ${v.updatedAt}</span>
               </div>
               <div style="display: flex; gap: 6px;">
-                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="playVideo('${v.url}', '${v.name}')">
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11.5px;" onclick="playVideo('${v.url}', '${v.name}')">
                   ▶️ Phát
                 </button>
-                <a class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" href="${v.url}" download="${v.name}">
+                <a class="btn btn-secondary" style="padding: 4px 10px; font-size: 11.5px;" href="${v.url}" download="${v.name}">
                   ⬇️ Tải
                 </a>
               </div>
@@ -1358,23 +1235,9 @@
       }
     }
 
-    // Load initial state
-    fetch('/api/status')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.state?.UniversalVideo?.props) {
-          populateFormFromProps(
-            'UniversalVideo',
-            data.state.UniversalVideo.props,
-            data.state.UniversalVideo.giongDoc
-          );
-        }
-        if (data.videos && data.videos.length > 0) {
-          playVideo(data.videos[0].url, data.videos[0].name);
-        }
-        pollStatus();
-      });
-
+    // Start with a clean creative workspace (no old video or fixed template forced!)
+    renderUniversalScenesEditor();
+    pollStatus();
     setInterval(pollStatus, 1200);
   </script>
 </body>
