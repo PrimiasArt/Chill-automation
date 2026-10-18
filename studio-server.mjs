@@ -575,7 +575,7 @@ Lưu ý:
 - Mỗi duLieuMinhHoa gồm 3 dòng ngắn gọn, đúng trọng tâm chủ đề người dùng yêu cầu.`;
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 14000);
+    const timer = setTimeout(() => controller.abort(), 25000);
 
     const response = await fetch("https://text.pollinations.ai/", {
       method: "POST",
@@ -612,18 +612,30 @@ Lưu ý:
             "checklist",
             "cards",
           ];
-          const sanitizedScenes = aiData.cacPhanCanh.slice(0, 8).map((sc, i) => ({
-            nhanPhu: String(sc.nhanPhu || `BƯỚC 0${i + 1} // CHI TIẾT`),
-            tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Nội dung chính`),
-            noiDungCanh: String(sc.noiDungCanh || ""),
-            loaiMinhHoa2D: validTypes.includes(sc.loaiMinhHoa2D)
-              ? sc.loaiMinhHoa2D
-              : validTypes[i % validTypes.length],
-            duLieuMinhHoa:
-              Array.isArray(sc.duLieuMinhHoa) && sc.duLieuMinhHoa.length > 0
-                ? sc.duLieuMinhHoa.slice(0, 4).map((item) => String(item))
-                : ["Nội dung trực quan 1", "Nội dung trực quan 2", "Hoàn tất"],
-          }));
+          const sanitizedScenes = aiData.cacPhanCanh.slice(0, 8).map((sc, i) => {
+            if (typeof sc === "string") {
+              const parts = sc.split(/[.;—–-]/).map((s) => s.trim()).filter(Boolean);
+              return {
+                nhanPhu: `BƯỚC 0${i + 1} // THỰC HIỆN`,
+                tieuDeCanh: parts[0] || `${i + 1}. Bước ${i + 1}`,
+                noiDungCanh: sc,
+                loaiMinhHoa2D: validTypes[i % validTypes.length],
+                duLieuMinhHoa: parts.length >= 2 ? parts.slice(0, 3) : [sc, "Thực hiện trực quan, dễ hiểu", "Hoàn tất bước này"],
+              };
+            }
+            return {
+              nhanPhu: String(sc.nhanPhu || `BƯỚC 0${i + 1} // CHI TIẾT`),
+              tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Nội dung chính`),
+              noiDungCanh: String(sc.noiDungCanh || ""),
+              loaiMinhHoa2D: validTypes.includes(sc.loaiMinhHoa2D)
+                ? sc.loaiMinhHoa2D
+                : validTypes[i % validTypes.length],
+              duLieuMinhHoa:
+                Array.isArray(sc.duLieuMinhHoa) && sc.duLieuMinhHoa.length > 0
+                  ? sc.duLieuMinhHoa.slice(0, 4).map((item) => String(item))
+                  : ["Nội dung trực quan 1", "Nội dung trực quan 2", "Hoàn tất"],
+            };
+          });
 
           const mergedProps = {
             ...baseParsed.props,
