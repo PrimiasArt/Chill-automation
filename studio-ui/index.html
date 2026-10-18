@@ -126,11 +126,11 @@
     }
     .prompt-input-row {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto auto auto;
       gap: 10px;
       align-items: stretch;
     }
-    @media (max-width: 960px) {
+    @media (max-width: 1120px) {
       .prompt-input-row {
         grid-template-columns: 1fr;
       }
@@ -608,11 +608,19 @@
           class="prompt-textarea"
           placeholder="Nhập bất kỳ chủ đề nào... VD: làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s"
         >làm 1 clip hướng dẫn cài đặt agent từ github, dễ, trực quan, hình ảnh hoạt hình 2d động, nhạc nền nhẹ, vui tai, ~60s</textarea>
-        <button class="btn btn-secondary" onclick="applyPromptOnly()">
-          🪄 Phân Tích Ra Kịch Bản Đa Cảnh
+        <button class="btn btn-secondary" onclick="applyPromptOnly()" title="Phân tích nhanh bằng bộ khung có sẵn (Không tốn limit Argon)">
+          🪄 Phân Tích Nhanh (0 tốn Limit)
         </button>
-        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()">
-          🚀 Tự Động Dựng & Xuất Video Ngay
+        <button class="btn btn-cyan" id="btnPromptRender" onclick="applyPromptAndRender()" title="Tự động dựng & xuất video ngay bằng bộ khung có sẵn">
+          🚀 Dựng & Xuất Ngay
+        </button>
+        <button
+          class="btn"
+          style="background: linear-gradient(135deg, #d4ff47, #00f0ff); color: #050811; padding: 11px 15px;"
+          onclick="sendToArgonBridge()"
+          title="Gửi yêu cầu sang phiên Antigravity để Argon dùng 21 bộ kỹ năng tự viết kịch bản/code mới (Dùng limit sẵn có của Argon, 0 tốn phí API)"
+        >
+          🤖 Gửi Cho Argon (Antigravity)
         </button>
       </div>
 
@@ -1119,6 +1127,28 @@
       }
     }
 
+    let lastArgonCompleteTime = 0;
+
+    async function sendToArgonBridge() {
+      const prompt = document.getElementById('promptInput').value.trim();
+      if (!prompt) return;
+      const res = await fetch('/api/argon-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, activeTemplate })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        try {
+          await navigator.clipboard.writeText(data.triggerCommand);
+        } catch (e) {}
+        const fb = document.getElementById('promptFeedback');
+        fb.style.display = 'block';
+        fb.style.color = '#d4ff47';
+        fb.innerText = '🤖 Đã truyền yêu cầu sang studio-ui/argon-request.json & ĐÃ COPY sẵn câu lệnh ("' + data.triggerCommand + '") vào bộ nhớ tạm! Bạn chỉ cần bấm Ctrl+V rồi Enter trong Antigravity để Argon (dùng limit sẵn có, 0 tốn phí API) tự thiết kế & dựng video!';
+      }
+    }
+
     async function applyPromptOnly() {
       const prompt = document.getElementById('promptInput').value.trim();
       if (!prompt) return;
@@ -1132,7 +1162,8 @@
         populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
         const fb = document.getElementById('promptFeedback');
         fb.style.display = 'block';
-        fb.innerText = '✨ ' + data.parsed.summary + ' — Bạn có thể xem/sửa từng phân cảnh ở Cột 3 hoặc bấm "Tự Động Dựng & Xuất Video Ngay"!';
+        fb.style.color = '#00f0ff';
+        fb.innerText = '✨ ' + data.parsed.summary + ' — Bạn có thể xem/sửa từng phân cảnh ở Cột 3 hoặc bấm "🚀 Dựng & Xuất Ngay"!';
       }
     }
 
@@ -1149,6 +1180,7 @@
         populateFormFromProps(data.parsed.compositionId, data.parsed.props, data.parsed.giongDoc);
         const fb = document.getElementById('promptFeedback');
         fb.style.display = 'block';
+        fb.style.color = '#00f0ff';
         fb.innerText = '🚀 ' + data.parsed.summary + ' — Đang tạo giọng đọc AI, ghép nhạc nền & kết xuất MP4!';
         pollStatus();
       }
@@ -1243,6 +1275,26 @@
         if (data.lanUrl) {
           document.getElementById('lanUrlPill').innerText = '🌐 Dùng trên máy khác (LAN): ' + data.lanUrl;
           document.getElementById('lanUrlText').innerText = data.lanUrl;
+        }
+
+        if (
+          data.argonRequest &&
+          data.argonRequest.status === 'completed' &&
+          data.argonRequest.updatedAt &&
+          data.argonRequest.updatedAt !== lastArgonCompleteTime
+        ) {
+          lastArgonCompleteTime = data.argonRequest.updatedAt;
+          if (data.argonRequest.props) {
+            populateFormFromProps(
+              data.argonRequest.compositionId || 'UniversalVideo',
+              data.argonRequest.props,
+              data.argonRequest.giongDoc
+            );
+          }
+          const fb = document.getElementById('promptFeedback');
+          fb.style.display = 'block';
+          fb.style.color = '#4ade80';
+          fb.innerText = data.argonRequest.message || '✅ Argon (Antigravity) đã hoàn tất thiết kế kịch bản & gửi lệnh xuất video!';
         }
 
         const job = data.renderJob;

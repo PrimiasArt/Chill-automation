@@ -1,4 +1,4 @@
-# Chill Automation — AI Video Pipeline (20-Repo Stack)
+# Chill Argon Studio — AI Video Pipeline (30-Repo Stack)
 
 Workspace này được cấu hình sẵn cho **Gemini 4 Argon** để tự động dựng video từ A đến Z theo quy trình 7 bước:
 `brief` $\rightarrow$ `design` $\rightarrow$ `animate` $\rightarrow$ `build` $\rightarrow$ `sound` $\rightarrow$ `render` $\rightarrow$ `review` $\rightarrow$ `ship`.
@@ -9,7 +9,7 @@ Trước khi viết code hoặc dựng video, luôn tham khảo các bộ skill 
 - **Motion AI Kit** (`motion`): Quy chuẩn animation giao diện & layout với `motion` (`motion/react`) và CSS spring.
 - **GSAP Skills** (`gsap-core`, `gsap-timeline`, `gsap-react`, `gsap-plugins`, `gsap-scrolltrigger`, `gsap-utils`, `gsap-performance`, `gsap-frameworks`): Quy chuẩn điều khiển timeline phức tạp và hoạt hình SVG/chữ với GSAP.
 
-## 2. Kiến trúc 20 Repo theo từng lớp
+## 2. Kiến trúc 30 Repo theo từng lớp
 1. **Agent Skills:** `remotion-skills`, `motion-ai-kit`, `gsap-skills` (đã tích hợp tại `.agents/skills/`).
 2. **Design:**
    - `svgo`: Tối ưu hóa file SVG (`npx.cmd svgo <file.svg>`) trước khi đưa vào animation.
@@ -28,10 +28,17 @@ Trước khi viết code hoặc dựng video, luôn tham khảo các bộ skill 
    - `@react-three/rapier`: Mô phỏng vật lý rơi và va chạm.
    - `@react-three/postprocessing`: Hiệu ứng hậu kỳ (`<Bloom/>`, `<DepthOfField/>`).
 6. **Âm thanh & Xuất bản (`sound` -> `render` -> `review` -> `ship`):**
-   - `@remotion/media` / `howler`: Quản lý hiệu ứng âm thanh (SFX) và nhạc nền.
+   - `@remotion/media` / `howler` / `msedge-tts` / `@remotion/sfx` / `@remotion/captions`: Quản lý giọng đọc AI Tiếng Việt, hiệu ứng âm thanh (SFX), phụ đề Karaoke và nhạc nền (`public/chill-bgm.mp3`, `public/mecha-cat-beat.mp3`).
    - `mediabunny`: Encode/xử lý video ngay trong trình duyệt qua WebCodecs.
-   - `npx.cmd remotion ffmpeg` & `npx.cmd remotion ffprobe`: Kiểm tra thông số video đầu ra (độ phân giải, FPS, codec H.264, âm lượng chuẩn `-13 LUFS`) kết hợp với khả năng **Multimodal** của Gemini 4 Argon (dùng `view_file` xem trực tiếp file `.mp4` sau khi render để kiểm tra bố cục, chuyển động và âm thanh).
+   - `npx.cmd remotion ffmpeg` & `npx.cmd remotion ffprobe`: Kiểm tra thông số video đầu ra kết hợp với khả năng **Multimodal** của Gemini 4 Argon (dùng `view_file` xem trực tiếp file `.mp4` sau khi render).
 
-## 3. Lưu ý môi trường Windows PowerShell
+## 3. Cầu Nối Trực Tiếp `Chill Argon Studio` (`http://localhost:4000`) $\leftrightarrow$ Antigravity (`studio-ui/argon-request.json`)
+- Khi người dùng bấm nút **"🤖 Gửi Cho Argon (Antigravity)"** trên giao diện Web `http://localhost:4000`, yêu cầu chi tiết sẽ được lưu vào file `studio-ui/argon-request.json` với `"status": "pending"`.
+- Bất cứ khi nào người dùng nhắn trong Antigravity (ví dụ: `"Thực hiện yêu cầu từ Chill Argon Studio"` hoặc `"chạy argon-request"`), Agent **PHẢI**:
+  1. Đọc ngay file `studio-ui/argon-request.json`.
+  2. Thiết kế kịch bản đa phân cảnh (`cacPhanCanh`), viết lời thoại thuyết minh sâu sắc (`loiThoai`), hoặc viết thêm code hiệu ứng 2D/3D mới trong `src/UniversalVideo.tsx` / `src/MechaCatDance.tsx`.
+  3. Gửi lệnh kết xuất qua API `POST http://localhost:4000/api/argon-complete` (hoặc cập nhật `studio-ui/studio-state.json` và gọi `POST http://localhost:4000/api/render`) để giao diện Web `http://localhost:4000` tự động chạy thanh tiến trình và phát video mới ngay lập tức!
+
+## 4. Lưu ý môi trường Windows PowerShell
 - Khi chạy lệnh `npm` hoặc `npx` trong PowerShell trên máy này, sử dụng `npm.cmd` và `npx.cmd` để tránh lỗi ExecutionPolicy của `npm.ps1`.
-- Dùng `npx.cmd remotion ffmpeg` và `npx.cmd remotion ffprobe` cho mọi tác vụ xử lý và kiểm định video/audio.
+- Khi gọi `npx.cmd remotion render` với `shell: true`, luôn truyền đường dẫn tương đối không chứa khoảng trắng (`--props=./studio-ui/current-props.json`).

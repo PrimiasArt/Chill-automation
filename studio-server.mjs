@@ -755,15 +755,112 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && pathname === "/api/status") {
+    let argonRequest = null;
+    const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
+    if (fs.existsSync(reqFile)) {
+      try {
+        argonRequest = JSON.parse(fs.readFileSync(reqFile, "utf8"));
+      } catch {
+        // ignore
+      }
+    }
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(
       JSON.stringify({
         lanUrl: `http://${getLanIp()}:${PORT}`,
         state: studioState,
         renderJob,
+        argonRequest,
         videos: getVideoList(),
       }),
     );
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/argon-request") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body);
+        const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
+        const requestObj = {
+          id: `req-${Date.now()}`,
+          status: "pending",
+          prompt: (payload.prompt || "").trim(),
+          activeTemplate: payload.activeTemplate || "UniversalVideo",
+          createdAt: new Date().toLocaleTimeString("vi-VN"),
+          updatedAt: Date.now(),
+          message:
+            "Đang chờ Argon (Antigravity) đọc file studio-ui/argon-request.json và tự động thiết kế/dựng video...",
+        };
+        fs.writeFileSync(reqFile, JSON.stringify(requestObj, null, 2), "utf8");
+        res.writeHead(200, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
+        res.end(
+          JSON.stringify({
+            ok: true,
+            argonRequest: requestObj,
+            triggerCommand: "Thực hiện yêu cầu từ Chill Argon Studio",
+          }),
+        );
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err) }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/argon-complete") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body);
+        const compositionId = payload.compositionId || "UniversalVideo";
+        const props = payload.props || studioState[compositionId]?.props || {};
+        const giongDoc = payload.giongDoc || "vi-VN-HoaiMyNeural";
+
+        const reqFile = path.join(__dirname, "studio-ui", "argon-request.json");
+        const completedObj = {
+          id: payload.id || `req-${Date.now()}`,
+          status: "completed",
+          prompt: payload.prompt || "",
+          compositionId,
+          props,
+          giongDoc,
+          updatedAt: Date.now(),
+          message:
+            payload.summary ||
+            "✅ Argon (Antigravity) đã thiết kế xong kịch bản & đang xuất video MP4!",
+        };
+        fs.writeFileSync(
+          reqFile,
+          JSON.stringify(completedObj, null, 2),
+          "utf8",
+        );
+
+        if (payload.autoRender !== false && !renderJob.isRendering) {
+          startRenderProcess(compositionId, props, giongDoc);
+        }
+
+        res.writeHead(200, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
+        res.end(
+          JSON.stringify({ ok: true, argonRequest: completedObj, renderJob }),
+        );
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err) }));
+      }
+    });
     return;
   }
 
@@ -840,6 +937,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(
-    `Chill Automation Studio (Universal 2D/3D) đang chạy tại: http://localhost:${PORT} (LAN: http://${getLanIp()}:${PORT})`,
+    `Chill Argon Studio (Universal 2D/3D) đang chạy tại: http://localhost:${PORT} (LAN: http://${getLanIp()}:${PORT})`,
   );
 });
