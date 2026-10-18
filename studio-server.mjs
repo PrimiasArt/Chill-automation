@@ -425,23 +425,25 @@ Trả về JSON hợp lệ theo cấu trúc:
       "noiDungCanh": "Mô tả cụ thể nội dung diễn ra trong Cảnh 1.",
       "moTaHinhAnhEn": "2d flat vector cartoon illustration of [specific scene 1 action in English]",
       "loaiMinhHoa2D": "illustration" | "flowchart" | "terminal" | "progress" | "checklist" | "cards",
-      "duLieuMinhHoa": ["Chi tiết cụ thể 1 của cảnh này", "Chi tiết cụ thể 2 của cảnh này", "Chi tiết cụ thể 3 của cảnh này"]
+      "duLieuMinhHoa": ["Ý chính ngắn gọn 1 bằng tiếng Việt hiển thị trên màn hình (TUYỆT ĐỐI KHÔNG ghi tên file .png/.mp4)", "Ý chính ngắn gọn 2 bằng tiếng Việt", "Ý chính ngắn gọn 3 bằng tiếng Việt"]
     }
   ]
 }
 Yêu cầu bắt buộc:
 - Phải có đúng 5 phân cảnh trong cacPhanCanh (Cảnh 1, Cảnh 2, Cảnh 3, Cảnh 4, Cảnh 5).
-- Cả 5 phân cảnh đều phải viết nội dung thực chất, bám sát chủ đề "${p}", tuyệt đối không lặp lại câu chữ chung chung.`;
+- Cả 5 phân cảnh đều phải viết nội dung thực chất, bám sát chủ đề "${p}", tuyệt đối không lặp lại câu chữ chung chung.
+- Mảng duLieuMinhHoa phải là 3 câu/cụm từ tiếng Việt ngắn gọn tóm tắt nội dung cảnh (không được viết tên file ảnh hay video).`;
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 24000);
+    const timer = setTimeout(() => controller.abort(), 60000);
 
     const response = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
       body: JSON.stringify({
-        model: "openai",
+        model: "openai-fast",
+        reasoning_effort: "low",
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
@@ -486,13 +488,27 @@ Yêu cầu bắt buộc:
                 duLieuMinhHoa: [sc],
               };
             }
+            const filteredItems = Array.isArray(sc.duLieuMinhHoa)
+              ? sc.duLieuMinhHoa
+                  .map((item) => String(item).trim())
+                  .filter(
+                    (item) =>
+                      item.length > 1 &&
+                      !/\.(png|jpg|jpeg|gif|mp4|svg|webp|wav|mp3)$/i.test(item),
+                  )
+                  .slice(0, 4)
+              : [];
+            const fallbackPhrases = String(sc.noiDungCanh || sc.tieuDeCanh || "")
+              .split(/[.;,!?–-]+/)
+              .map((s) => s.trim())
+              .filter((s) => s.length > 3)
+              .slice(0, 3);
             const rawItems =
-              Array.isArray(sc.duLieuMinhHoa) && sc.duLieuMinhHoa.length > 0
-                ? sc.duLieuMinhHoa.slice(0, 4).map((item) => String(item))
-                : [
-                    String(sc.noiDungCanh || sc.tieuDeCanh || ""),
-                    `Chi tiết thực hiện bước ${i + 1}`,
-                  ];
+              filteredItems.length > 0
+                ? filteredItems
+                : fallbackPhrases.length > 0
+                  ? fallbackPhrases
+                  : [String(sc.tieuDeCanh || `Nội dung phân cảnh ${i + 1}`)];
             return {
               nhanPhu: String(sc.nhanPhu || `CẢNH 0${i + 1} // BƯỚC ${i + 1}`),
               tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Phân cảnh ${i + 1}`),
