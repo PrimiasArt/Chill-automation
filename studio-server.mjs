@@ -1,9 +1,10 @@
-import http from "node:http";
-import fs from "node:fs";
-import path from "node:path";
-import os from "node:os";
-import { spawn, exec, execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import http from "http";
+import fs from "fs";
+import path from "path";
+import os from "os";
+import { spawn, exec } from "child_process";
+import { fileURLToPath } from "url";
+import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,20 +14,15 @@ const OUT_DIR = path.join(__dirname, "out");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const SCENE_IMG_DIR = path.join(PUBLIC_DIR, "scene-images");
 const UI_FILE = path.join(__dirname, "studio-ui", "index.html");
-const STATE_FILE = path.join(__dirname, "studio-ui", "studio-state.json");
 
-fs.mkdirSync(OUT_DIR, { recursive: true });
-fs.mkdirSync(SCENE_IMG_DIR, { recursive: true });
-fs.mkdirSync(path.join(__dirname, "studio-ui"), { recursive: true });
-
-try {
-  for (const f of fs.readdirSync(OUT_DIR)) {
-    if (f.includes(".remotion-in-progress")) {
-      fs.unlinkSync(path.join(OUT_DIR, f));
-    }
-  }
-} catch {
-  // ignore
+if (!fs.existsSync(OUT_DIR)) {
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+}
+if (!fs.existsSync(PUBLIC_DIR)) {
+  fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+}
+if (!fs.existsSync(SCENE_IMG_DIR)) {
+  fs.mkdirSync(SCENE_IMG_DIR, { recursive: true });
 }
 
 function getLanIp() {
@@ -41,176 +37,286 @@ function getLanIp() {
   return "localhost";
 }
 
-function escapeXml(str) {
-  return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+/**
+ * Pure artistic 2D vector cartoon scene fallback (ZERO duplicate text inside the image!)
+ * Only used if the machine is 100% offline without internet.
+ */
+function generateOfflineArtisticSvg(idx, mauChuDao = "#38bdf8", mauPhu = "#fbbf24") {
+  const scenes = [
+    // Scene 0: Cozy Workspace & Glowing Laptop
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 640" width="1024" height="640">
+      <defs>
+        <linearGradient id="sky0" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+      </defs>
+      <rect width="1024" height="640" fill="url(#sky0)"/>
+      <circle cx="820" cy="140" r="95" fill="${mauPhu}" opacity="0.85"/>
+      <circle cx="820" cy="140" r="135" fill="${mauPhu}" opacity="0.18"/>
+      <path d="M0 480 Q260 410 520 470 T1024 450 L1024 640 L0 640 Z" fill="#1e293b"/>
+      <rect x="210" y="450" width="604" height="32" rx="14" fill="#475569"/>
+      <rect x="310" y="210" width="404" height="245" rx="22" fill="#0f172a" stroke="${mauChuDao}" stroke-width="8"/>
+      <rect x="336" y="240" width="352" height="185" rx="12" fill="#1e293b"/>
+      <circle cx="430" cy="330" r="46" fill="${mauChuDao}"/>
+      <path d="M412 330 L426 344 L454 314" fill="none" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+      <rect x="505" y="295" width="145" height="22" rx="8" fill="${mauPhu}"/>
+      <rect x="505" y="335" width="110" height="18" rx="8" fill="#94a3b8"/>
+      <path d="M260 455 L764 455 L730 485 L294 485 Z" fill="#cbd5e1"/>
+    </svg>`,
+    // Scene 1: Cute Robot Character & Floating Nodes
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 640" width="1024" height="640">
+      <rect width="1024" height="640" fill="#0f172a"/>
+      <circle cx="200" cy="160" r="140" fill="${mauChuDao}" opacity="0.14"/>
+      <circle cx="840" cy="480" r="180" fill="${mauPhu}" opacity="0.14"/>
+      <rect x="392" y="180" width="240" height="210" rx="48" fill="#f8fafc" stroke="${mauChuDao}" stroke-width="10"/>
+      <rect x="432" y="230" width="160" height="90" rx="24" fill="#0f172a"/>
+      <circle cx="478" cy="275" r="18" fill="${mauChuDao}"/>
+      <circle cx="546" cy="275" r="18" fill="${mauChuDao}"/>
+      <line x1="512" y1="120" x2="512" y2="180" stroke="${mauPhu}" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="512" cy="110" r="24" fill="${mauPhu}"/>
+      <rect x="422" y="405" width="180" height="140" rx="36" fill="#cbd5e1" stroke="${mauChuDao}" stroke-width="8"/>
+      <circle cx="240" cy="300" r="54" fill="${mauPhu}"/>
+      <circle cx="784" cy="300" r="54" fill="${mauChuDao}"/>
+      <path d="M294 300 L392 285 M632 285 L730 300" stroke="#ffffff" stroke-width="8" stroke-dasharray="12 10"/>
+    </svg>`,
+    // Scene 2: Rocket Launch & Starry Sky
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 640" width="1024" height="640">
+      <rect width="1024" height="640" fill="#090d16"/>
+      <circle cx="180" cy="120" r="6" fill="#fff"/><circle cx="820" cy="100" r="8" fill="#fff"/>
+      <circle cx="740" cy="240" r="5" fill="#fff"/><circle cx="260" cy="340" r="7" fill="#fff"/>
+      <circle cx="512" cy="320" r="210" fill="${mauChuDao}" opacity="0.12"/>
+      <path d="M512 110 C590 200 595 340 575 430 L449 430 C429 340 434 200 512 110 Z" fill="#f8fafc" stroke="${mauChuDao}" stroke-width="8"/>
+      <path d="M449 350 L380 445 L449 430 Z" fill="${mauPhu}"/>
+      <path d="M575 350 L644 445 L575 430 Z" fill="${mauPhu}"/>
+      <circle cx="512" cy="265" r="42" fill="#0f172a" stroke="${mauChuDao}" stroke-width="8"/>
+      <path d="M475 435 Q512 560 549 435 Z" fill="${mauPhu}"/>
+    </svg>`,
+  ];
+  return scenes[idx % scenes.length];
 }
 
 /**
- * Generates a unique, topic-tailored 2D Cartoon Vector Illustration SVG for each scene
- * so every scene has its own custom artwork (never reusing unrelated templates).
+ * Helper to read Gradio SSE stream and stop immediately when the image URL arrives.
  */
-function generateCustom2DSceneSvg(scene, idx, totalScenes, mauChuDao, mauPhu, topicTitle) {
-  const title = escapeXml((scene.tieuDeCanh || `Cảnh ${idx + 1}`).slice(0, 48));
-  const sub = escapeXml((scene.noiDungCanh || "").slice(0, 75));
-  const badge = escapeXml(scene.nhanPhu || `CẢNH 0${idx + 1} / 0${totalScenes}`);
-  const items = Array.isArray(scene.duLieuMinhHoa) ? scene.duLieuMinhHoa.slice(0, 3) : [];
-  const lowerText = `${scene.tieuDeCanh} ${scene.noiDungCanh} ${topicTitle}`.toLowerCase();
+async function readGradioSseUrl(sseUrl, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(sseUrl, { signal: controller.signal });
+    if (!res.ok || !res.body) throw new Error(`SSE HTTP ${res.status}`);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (line.startsWith("event: error")) {
+          controller.abort();
+          throw new Error("Gradio SSE quota/error");
+        }
+        if (line.startsWith("data: ")) {
+          const raw = line.slice(6).trim();
+          if (!raw || raw === "null") continue;
+          try {
+            const parsed = JSON.parse(raw);
+            const first = Array.isArray(parsed) ? parsed[0] : parsed;
+            const url =
+              first?.url ||
+              first?.image?.url ||
+              (typeof first === "string" && first.startsWith("http") ? first : null);
+            if (url) {
+              controller.abort();
+              return url;
+            }
+          } catch {}
+        }
+      }
+    }
+    throw new Error("Stream ended without URL");
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
-  // Choose custom 2D vector character/object illustration based on scene semantics & index
-  let centerArtwork = "";
-  if (lowerText.includes("github") || lowerText.includes("code") || lowerText.includes("git") || lowerText.includes("terminal") || lowerText.includes("lệnh")) {
-    centerArtwork = `
-      <!-- 2D Cartoon Laptop + Code Window + Mascot -->
-      <rect x="470" y="55" width="290" height="190" rx="18" fill="#0f172a" stroke="${mauChuDao}" stroke-width="4"/>
-      <rect x="470" y="55" width="290" height="34" rx="14" fill="#1e293b"/>
-      <circle cx="494" cy="72" r="6" fill="#ef4444"/>
-      <circle cx="514" cy="72" r="6" fill="#facc15"/>
-      <circle cx="534" cy="72" r="6" fill="#22c55e"/>
-      <text x="492" y="122" fill="${mauChuDao}" font-family="monospace" font-size="18" font-weight="bold">$ git clone repo.git</text>
-      <text x="492" y="154" fill="${mauPhu}" font-family="monospace" font-size="17">&gt; Installing skills...</text>
-      <rect x="492" y="176" width="210" height="14" rx="7" fill="#1e293b"/>
-      <rect x="492" y="176" width="${80 + (idx * 35) % 130}" height="14" rx="7" fill="${mauChuDao}"/>
-      <path d="M440 245 L790 245 L765 268 L465 268 Z" fill="#334155" stroke="${mauPhu}" stroke-width="3"/>
-    `;
-  } else if (idx % 4 === 0) {
-    centerArtwork = `
-      <!-- 2D Cartoon Explorer / Idea Bulb & Rocket Scene -->
-      <circle cx="620" cy="155" r="88" fill="${mauChuDao}22" stroke="${mauChuDao}" stroke-width="3" stroke-dasharray="10 6"/>
-      <circle cx="620" cy="155" r="62" fill="#1e293b" stroke="${mauPhu}" stroke-width="4"/>
-      <path d="M620 105 L638 142 L678 148 L648 176 L656 215 L620 196 L584 215 L592 176 L562 148 L602 142 Z" fill="${mauChuDao}"/>
-      <circle cx="515" cy="95" r="14" fill="${mauPhu}"/>
-      <circle cx="725" cy="210" r="18" fill="${mauChuDao}"/>
-    `;
-  } else if (idx % 4 === 1) {
-    centerArtwork = `
-      <!-- 2D Cartoon Connected Workflow Nodes -->
-      <rect x="465" y="70" width="130" height="75" rx="16" fill="#1e293b" stroke="${mauChuDao}" stroke-width="4"/>
-      <text x="530" y="115" text-anchor="middle" fill="${mauChuDao}" font-family="sans-serif" font-size="22" font-weight="900">BƯỚC ${idx}</text>
-      <path d="M595 108 L645 165" stroke="${mauPhu}" stroke-width="5" stroke-linecap="round"/>
-      <rect x="635" y="145" width="135" height="80" rx="16" fill="#1e293b" stroke="${mauPhu}" stroke-width="4"/>
-      <text x="702" y="192" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="22" font-weight="900">BƯỚC ${idx + 1}</text>
-      <circle cx="618" cy="135" r="12" fill="${mauChuDao}"/>
-    `;
-  } else if (idx % 4 === 2) {
-    centerArtwork = `
-      <!-- 2D Cartoon Visual Analytics & Growth Chart -->
-      <rect x="470" y="65" width="290" height="190" rx="20" fill="#111827" stroke="${mauPhu}" stroke-width="3"/>
-      <rect x="505" y="175" width="38" height="55" rx="8" fill="${mauPhu}"/>
-      <rect x="565" y="140" width="38" height="90" rx="8" fill="${mauChuDao}"/>
-      <rect x="625" y="105" width="38" height="125" rx="8" fill="${mauPhu}"/>
-      <rect x="685" y="82" width="38" height="148" rx="8" fill="${mauChuDao}"/>
-      <path d="M510 155 L580 120 L640 92 L705 70" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="705" cy="70" r="9" fill="${mauChuDao}"/>
-    `;
-  } else {
-    centerArtwork = `
-      <!-- 2D Cartoon Trophy / Completion Shield -->
-      <circle cx="620" cy="155" r="85" fill="${mauPhu}22" stroke="${mauPhu}" stroke-width="3"/>
-      <polygon points="620,75 685,110 670,195 620,235 570,195 555,110" fill="#1e293b" stroke="${mauChuDao}" stroke-width="4"/>
-      <path d="M592 155 L612 176 L652 132" fill="none" stroke="${mauChuDao}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-    `;
+/**
+ * Try generating a real AI image via FLUX.1-schnell or Pollinations.
+ */
+async function tryGenerateAiDiffusionImage(promptEn, seed) {
+  // 1. Try FLUX.1-schnell Gradio API
+  try {
+    const host = "https://black-forest-labs-flux-1-schnell.hf.space";
+    const callRes = await fetch(`${host}/gradio_api/call/infer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: [promptEn, seed % 999999, true, 1024, 576, 4],
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (callRes.ok) {
+      const { event_id } = await callRes.json();
+      const imgUrl = await readGradioSseUrl(`${host}/gradio_api/call/infer/${event_id}`, 18000);
+      const imgRes = await fetch(imgUrl, { signal: AbortSignal.timeout(8000) });
+      if (imgRes.ok) {
+        const buf = Buffer.from(await imgRes.arrayBuffer());
+        if (buf.length > 5000) return { buf, ext: "webp" };
+      }
+    }
+  } catch {}
+
+  // 2. Try Pollinations Flux endpoint
+  try {
+    const pUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptEn)}?width=1024&height=576&nologo=true&seed=${seed}`;
+    const res = await fetch(pUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+      signal: AbortSignal.timeout(9000),
+    });
+    if (res.ok && (res.headers.get("content-type") || "").includes("image")) {
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length > 5000) return { buf, ext: "jpg" };
+    }
+  } catch {}
+
+  return null;
+}
+
+/**
+ * Style-aware High-Resolution Visual Search Engine (Bing CDN + Vector/Photo Repositories)
+ * Downloads 1024x640 / full-res illustrations or photography in ~1.5 seconds with ZERO rate limits!
+ */
+async function fetchHighResVisualFromSearch(searchQuery, usedUrls, variationOffset = 0) {
+  const q = encodeURIComponent(searchQuery);
+  const res = await fetch(
+    `https://www.bing.com/images/async?q=${q}&first=1&count=28&qft=+filterui:aspect-wide`,
+    {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+      signal: AbortSignal.timeout(7000),
+    },
+  );
+  if (!res.ok) throw new Error(`Search HTTP ${res.status}`);
+  const html = await res.text();
+
+  // Extract Bing High-Speed CDN URLs (ts1..4.mm.bing.net) and direct high-res murls
+  const turls = [
+    ...html.matchAll(/&quot;turl&quot;:&quot;(https:\/\/ts\w*\.mm\.bing\.net\/th\?id=OIP\.[^&"]+)/g),
+  ].map((m) => `${m[1]}&w=1024&h=640&c=7&rs=1&qlt=92`);
+
+  const murls = [
+    ...html.matchAll(/&quot;murl&quot;:&quot;(https?:\/\/[^"&]+?\.(?:jpg|jpeg|png|webp))&quot;/gi),
+  ].map((m) => m[1]);
+
+  // Interleave CDN HD URLs (ultra-reliable, fast, 1024x640) and original murls
+  const candidates = [];
+  const maxLen = Math.max(turls.length, murls.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (turls[i]) candidates.push(turls[i]);
+    if (murls[i]) candidates.push(murls[i]);
   }
 
-  const itemTags = items
-    .map((it, i) => {
-      const y = 135 + i * 52;
-      const text = escapeXml(String(it).slice(0, 42));
-      return `
-        <rect x="34" y="${y}" width="405" height="40" rx="10" fill="#162038" stroke="${i % 2 === 0 ? mauChuDao : mauPhu}" stroke-width="2"/>
-        <text x="52" y="${y + 26}" fill="#f8fafc" font-family="Segoe UI, sans-serif" font-size="17" font-weight="700">${text}</text>
-      `;
-    })
-    .join("");
+  const unused = candidates.filter((u) => !usedUrls.has(u));
+  const pool = unused.length > 0 ? unused : candidates;
+  const startIdx = (variationOffset * 2) % Math.max(1, pool.length);
+  const ordered = [...pool.slice(startIdx), ...pool.slice(0, startIdx)];
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320">
-    <defs>
-      <linearGradient id="bgGrad${idx}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#0b1120"/>
-        <stop offset="60%" stop-color="#111c35"/>
-        <stop offset="100%" stop-color="#090d16"/>
-      </linearGradient>
-    </defs>
-    <rect width="800" height="320" rx="22" fill="url(#bgGrad${idx})"/>
-    <circle cx="720" cy="40" r="140" fill="${mauChuDao}" opacity="0.08"/>
-    <circle cx="120" cy="280" r="160" fill="${mauPhu}" opacity="0.08"/>
-
-    <!-- Scene Badge & Title on Left -->
-    <rect x="34" y="28" width="185" height="32" rx="16" fill="${mauChuDao}"/>
-    <text x="126" y="49" text-anchor="middle" fill="#050811" font-family="monospace" font-size="15" font-weight="900">${badge}</text>
-
-    <text x="34" y="92" fill="#ffffff" font-family="Segoe UI, sans-serif" font-size="23" font-weight="900">${title}</text>
-    <text x="34" y="118" fill="#94a3b8" font-family="Segoe UI, sans-serif" font-size="14" font-weight="600">${sub}</text>
-
-    ${itemTags}
-    ${centerArtwork}
-  </svg>`;
+  for (const url of ordered.slice(0, 8)) {
+    try {
+      const imgRes = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        signal: AbortSignal.timeout(4500),
+      });
+      if (imgRes.ok && (imgRes.headers.get("content-type") || "").includes("image")) {
+        const buf = Buffer.from(await imgRes.arrayBuffer());
+        if (buf.length > 6000) {
+          usedUrls.add(url);
+          return { buf, ext: "jpg" };
+        }
+      }
+    } catch {}
+  }
+  return null;
 }
 
 /**
- * Creates 2D illustration files in public/scene-images/ for every scene in cacPhanCanh.
- * Optionally fetches AI raster illustrations if requested.
+ * Builds the English visual query tailored to the video's layout style (`kieuBoCuc`) and scene content.
  */
-async function attachSceneIllustrations(props, tryCloudImage = false) {
+function buildStyleQueryForScene(sc, idx, props) {
+  const layout = props.kieuBoCuc || "hoat-hinh-2d";
+  const baseEn = String(sc.moTaHinhAnhEn || sc.tieuDeCanh || props.tieuDeChinh || "creative studio")
+    .replace(/^(2d flat vector cartoon illustration of|illustration of|photo of)\s*/i, "")
+    .trim();
+
+  if (layout === "hoat-hinh-2d") {
+    return `flat vector 2d cartoon illustration ${baseEn} colorful clean art`;
+  }
+  if (layout === "dien-anh-full") {
+    return `${baseEn} cinematic high resolution photography 4k`;
+  }
+  if (layout === "chill-lofi") {
+    return `anime lofi aesthetic illustration ${baseEn} cozy warm art`;
+  }
+  if (layout === "quang-cao-reels") {
+    return `vibrant modern digital illustration ${baseEn} dynamic colorful`;
+  }
+  return `flat vector 2d tech illustration ${baseEn} modern UI`;
+}
+
+/**
+ * Populates high-resolution illustrations for all scenes in parallel (~2s total!).
+ */
+async function attachSceneIllustrations(props, useAiDiffusion = false, variationOffset = 0) {
   const scenes = Array.isArray(props.cacPhanCanh) ? props.cacPhanCanh : [];
   const batchId = Date.now();
-  const mauChuDao = props.mauChuDao || "#d4ff47";
-  const mauPhu = props.mauPhu || "#00f0ff";
-  const topicTitle = props.tieuDeChinh || "Video 2D";
+  const usedUrls = new Set();
 
-  // Clean up old generated scene images so folder stays light
+  // Keep scene-images folder tidy
   try {
     const oldFiles = fs.readdirSync(SCENE_IMG_DIR);
-    if (oldFiles.length > 40) {
-      for (const f of oldFiles.slice(0, oldFiles.length - 20)) {
+    if (oldFiles.length > 50) {
+      for (const f of oldFiles.slice(0, oldFiles.length - 25)) {
         fs.unlinkSync(path.join(SCENE_IMG_DIR, f));
       }
     }
-  } catch {
-    // ignore
-  }
+  } catch {}
 
   await Promise.all(
     scenes.map(async (sc, idx) => {
-      // If user requested AI raster image and moTaHinhAnhEn exists
-      if (tryCloudImage) {
-        try {
-          const promptEn =
-            sc.moTaHinhAnhEn ||
-            `2d flat vector cartoon illustration of ${sc.tieuDeCanh}, vibrant neon colors, clean minimal explainer art`;
-          const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptEn)}?width=800&height=360&nologo=true&seed=${batchId + idx}`;
-          const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 7500);
-          const res = await fetch(imgUrl, { signal: ctrl.signal });
-          clearTimeout(t);
-          if (res.ok && (res.headers.get("content-type") || "").includes("image")) {
-            const arrayBuf = await res.arrayBuffer();
-            const buf = Buffer.from(arrayBuf);
-            if (buf.length > 4000) {
-              const fileName = `scene-${batchId}-${idx + 1}.jpg`;
-              fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), buf);
-              sc.hinhAnhCanh = `scene-images/${fileName}`;
-              return;
-            }
-          }
-        } catch {
-          // fallback to crisp custom 2D vector SVG below
+      const styleQuery = buildStyleQueryForScene(sc, idx, props);
+
+      // 1. If user explicitly requested AI diffusion synthesis
+      if (useAiDiffusion) {
+        const aiImg = await tryGenerateAiDiffusionImage(styleQuery, batchId + idx * 137);
+        if (aiImg) {
+          const fileName = `scene-${batchId}-${idx + 1}.${aiImg.ext}`;
+          fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), aiImg.buf);
+          sc.hinhAnhCanh = `scene-images/${fileName}`;
+          return;
         }
       }
 
-      // Generate custom 2D Vector Cartoon SVG tailored to this exact scene
-      const svgContent = generateCustom2DSceneSvg(
-        sc,
-        idx,
-        scenes.length,
-        mauChuDao,
-        mauPhu,
-        topicTitle,
-      );
+      // 2. Fast High-Res Style-Matched Visual Search (2D Vector Cartoon / Cinema Photo / Lofi Art)
+      try {
+        const found = await fetchHighResVisualFromSearch(
+          styleQuery,
+          usedUrls,
+          variationOffset + idx,
+        );
+        if (found) {
+          const fileName = `scene-${batchId}-${idx + 1}.${found.ext}`;
+          fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), found.buf);
+          sc.hinhAnhCanh = `scene-images/${fileName}`;
+          return;
+        }
+      } catch {}
+
+      // 3. Offline pure-art SVG fallback (no duplicate text!)
+      const svgContent = generateOfflineArtisticSvg(idx, props.mauChuDao, props.mauPhu);
       const svgFileName = `scene-${batchId}-${idx + 1}.svg`;
       fs.writeFileSync(path.join(SCENE_IMG_DIR, svgFileName), svgContent, "utf8");
       sc.hinhAnhCanh = `scene-images/${svgFileName}`;
@@ -229,17 +335,18 @@ const DEFAULT_STATE = {
     giongDoc: "vi-VN-HoaiMyNeural",
     props: {
       theLoai: "kien-thuc",
+      kieuBoCuc: "hoat-hinh-2d",
       tieuDeChinh: "",
-      tenKenh: "CHILL ARGON STUDIO · 2D MOTION",
+      tenKenh: "CHILL ARGON STUDIO",
       loiThoai: "",
       batGiongDoc: true,
       batPhuDe: true,
       kieuNhacNen: "chill",
       batNhacNen: true,
       thoiLuongGiay: 60,
-      mauChuDao: "#d4ff47",
-      mauPhu: "#00f0ff",
-      mauNen: "#0b0f19",
+      mauChuDao: "#38bdf8",
+      mauPhu: "#fbbf24",
+      mauNen: "#0f172a",
       hienThi3D: false,
       cacPhanCanh: [],
     },
@@ -271,31 +378,95 @@ let renderJob = {
   isRendering: false,
   compositionId: null,
   progress: 0,
-  stage: "Sẵn sàng — Hãy nhập Prompt để AI sáng tạo kịch bản & hình ảnh mới",
+  stage: "Sẵn sàng — Hãy nhập Prompt để AI sáng tạo kịch bản, chọn bố cục & vẽ minh họa mới",
   lastError: null,
   outputUrl: null,
   updatedAt: 0,
 };
 
 /**
- * Offline fallback that dynamically breaks down the user's prompt into custom scenes
- * (NEVER uses hardcoded boilerplate scenes 2-5!)
+ * Detects the best video layout (`kieuBoCuc`) and color theme from the user's prompt.
  */
-function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
-  let mauChuDao = "#d4ff47";
-  let mauPhu = "#00f0ff";
-  let mauNen = "#0b0f19";
+function detectLayoutAndTheme(lower) {
+  let kieuBoCuc = "hoat-hinh-2d";
+  let theLoai = "kien-thuc";
+  let mauChuDao = "#38bdf8";
+  let mauPhu = "#fbbf24";
+  let mauNen = "#0f172a";
 
-  if (lower.includes("xanh lá") || lower.includes("lục")) {
-    mauChuDao = "#4ade80";
-    mauPhu = "#38bdf8";
-  } else if (lower.includes("cam") || lower.includes("vàng")) {
-    mauChuDao = "#facc15";
+  if (
+    lower.includes("hoạt hình 2d") ||
+    lower.includes("2d động") ||
+    lower.includes("minh họa 2d") ||
+    lower.includes("trực quan") ||
+    lower.includes("cartoon")
+  ) {
+    kieuBoCuc = "hoat-hinh-2d";
+    theLoai = "kien-thuc";
+    mauChuDao = "#38bdf8";
+    mauPhu = "#fbbf24";
+    mauNen = "#1e1b4b";
+  } else if (
+    lower.includes("lofi") ||
+    lower.includes("tâm sự") ||
+    lower.includes("podcast") ||
+    lower.includes("thư giãn") ||
+    lower.includes("đêm mưa") ||
+    lower.includes("chữa lành")
+  ) {
+    kieuBoCuc = "chill-lofi";
+    theLoai = "ke-chuyen";
+    mauChuDao = "#f59e0b";
+    mauPhu = "#c084fc";
+    mauNen = "#181326";
+  } else if (
+    lower.includes("quảng cáo") ||
+    lower.includes("tiktok") ||
+    lower.includes("reels") ||
+    lower.includes("sôi động") ||
+    lower.includes("viral") ||
+    lower.includes("bán hàng") ||
+    lower.includes("khuyến mãi")
+  ) {
+    kieuBoCuc = "quang-cao-reels";
+    theLoai = "quang-cao";
+    mauChuDao = "#ff2a85";
+    mauPhu = "#00f0ff";
+    mauNen = "#140824";
+  } else if (
+    lower.includes("điện ảnh") ||
+    lower.includes("cinematic") ||
+    lower.includes("kể chuyện") ||
+    lower.includes("ẩm thực") ||
+    lower.includes("nấu ăn") ||
+    lower.includes("cà phê") ||
+    lower.includes("du lịch") ||
+    lower.includes("lịch sử") ||
+    lower.includes("review")
+  ) {
+    kieuBoCuc = "dien-anh-full";
+    theLoai = "ke-chuyen";
+    mauChuDao = "#fbbf24";
     mauPhu = "#fb923c";
-  } else if (lower.includes("tím") || lower.includes("hồng")) {
-    mauChuDao = "#c084fc";
-    mauPhu = "#f472b6";
+    mauNen = "#090a0f";
+  } else if (
+    lower.includes("code") ||
+    lower.includes("lập trình") ||
+    lower.includes("terminal") ||
+    lower.includes("từng bước")
+  ) {
+    kieuBoCuc = "cong-nghe-step";
+    theLoai = "cong-nghe";
+    mauChuDao = "#d4ff47";
+    mauPhu = "#00f0ff";
+    mauNen = "#0b0f19";
   }
+
+  return { kieuBoCuc, theLoai, mauChuDao, mauPhu, mauNen };
+}
+
+function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
+  const { kieuBoCuc, theLoai, mauChuDao, mauPhu, mauNen } = detectLayoutAndTheme(lower);
 
   let kieuNhacNen = "chill";
   if (lower.includes("sôi động") || lower.includes("edm") || lower.includes("bốc")) {
@@ -322,7 +493,10 @@ function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
       /^(hãy\s+)?(làm|tạo|dựng|viết)\s+(cho\s+mình\s+|cho\s+tôi\s+)?(1\s+|một\s+)?(clip|video|đoạn\s+phim)\s*/i,
       "",
     )
-    .replace(/,?\s*(dễ|trực quan|hình ảnh|hoạt hình 2d động|nhạc nền nhẹ|vui tai|~?\d+\s*(s|giây|phút)).*$/i, "")
+    .replace(
+      /,?\s*(dễ|trực quan|hình ảnh|hoạt hình 2d động|nhạc nền nhẹ|vui tai|~?\d+\s*(s|giây|phút)).*$/i,
+      "",
+    )
     .trim();
 
   if (!cleanTopic || cleanTopic.length < 3) {
@@ -331,42 +505,33 @@ function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
   cleanTopic = cleanTopic.charAt(0).toUpperCase() + cleanTopic.slice(1);
 
   const modes = ["illustration", "flowchart", "terminal", "checklist", "cards"];
-  const clauses = rawPrompt
-    .split(/[\n.;!?]+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 5);
-
-  const sceneTopics =
-    clauses.length >= 3
-      ? clauses.slice(0, 5)
-      : [
-          `Tổng quan & Mục tiêu: ${cleanTopic}`,
-          `Chuẩn bị công cụ cho: ${cleanTopic}`,
-          `Thao tác thực hiện trực tiếp: ${cleanTopic}`,
-          `Mẹo tối ưu & Lưu ý quan trọng khi ${cleanTopic}`,
-          `Kết quả hoàn chỉnh & Ứng dụng ${cleanTopic}`,
-        ];
+  const sceneTopics = [
+    `Giới thiệu & Mở đầu: ${cleanTopic}`,
+    `Chuẩn bị nền tảng cho: ${cleanTopic}`,
+    `Thực hiện bước trọng tâm: ${cleanTopic}`,
+    `Bí quyết tối ưu khi ${cleanTopic}`,
+    `Trải nghiệm kết quả ${cleanTopic}`,
+  ];
 
   const scenes = sceneTopics.map((st, idx) => ({
-    nhanPhu: `CẢNH 0${idx + 1} // BƯỚC ${idx + 1}`,
+    nhanPhu: `CẢNH 0${idx + 1}`,
     tieuDeCanh: `${idx + 1}. ${st.slice(0, 52)}`,
-    noiDungCanh: `Minh họa trực quan chi tiết cho phần: ${st}.`,
+    noiDungCanh: `Khám phá trực quan và chi tiết cho phần: ${st}.`,
+    moTaHinhAnhEn: `${cleanTopic} step ${idx + 1} illustration`,
     loaiMinhHoa2D: modes[idx % modes.length],
     duLieuMinhHoa: [
-      `Ý chính 1: ${st.slice(0, 40)}`,
-      `Thao tác trực quan bước ${idx + 1}`,
-      `Hoàn thành bước ${idx + 1} nhanh chóng`,
+      `Điểm nhấn: ${st.slice(0, 38)}`,
+      `Trực quan hóa sinh động cảnh ${idx + 1}`,
     ],
   }));
 
-  const loiThoai = scenes
-    .map((s) => `${s.tieuDeCanh}. ${s.noiDungCanh}`)
-    .join(" ");
+  const loiThoai = scenes.map((s) => `${s.tieuDeCanh}. ${s.noiDungCanh}`).join(" ");
 
   return {
-    theLoai: "cong-nghe",
+    theLoai,
+    kieuBoCuc,
     tieuDeChinh: cleanTopic.slice(0, 55),
-    tenKenh: "CHILL ARGON STUDIO · 2D MOTION",
+    tenKenh: "CHILL ARGON STUDIO",
     loiThoai,
     batGiongDoc,
     batPhuDe,
@@ -382,15 +547,12 @@ function buildDynamicFallbackStoryboard(rawPrompt, lower, durationSec) {
 }
 
 /**
- * 100% Creative AI Storyboard, Script & 2D Illustration Generator
- * Uses https://text.pollinations.ai/openai (JSON mode) so every single scene (1..N)
- * is uniquely written from scratch for the user's exact prompt!
+ * 100% Creative AI Storyboard, Layout Director & High-Res Visual Generator
  */
-async function generateStoryboardWithAI(rawPrompt, wantCloudImages = false) {
+async function generateStoryboardWithAI(rawPrompt, wantAiDiffusion = false) {
   const p = (rawPrompt || "").trim();
   const lower = p.toLowerCase();
 
-  // Extract requested duration in seconds
   let durationSec = 45;
   const secMatch = lower.match(/~?\s*(\d+)\s*(?:s|giây|sec)\b/);
   const minMatch = lower.match(/~?\s*(\d+)\s*(?:phút|phut|min)\b/);
@@ -410,11 +572,12 @@ async function generateStoryboardWithAI(rawPrompt, wantCloudImages = false) {
   try {
     const targetWords = Math.min(240, Math.max(60, Math.round(durationSec * 2.3)));
 
-    const systemPrompt = `Bạn là Đạo diễn Hoạt Hình 2D Motion Graphics chuyên nghiệp.
-Hãy viết kịch bản video hoàn toàn mới, sáng tạo 100% theo đúng chủ đề người dùng yêu cầu. TUYỆT ĐỐI KHÔNG dùng nội dung mẫu chung chung.
+    const systemPrompt = `Bạn là Đạo diễn Video & Hoạt hình chuyên nghiệp.
+Hãy viết kịch bản video hoàn toàn mới, sáng tạo 100% theo đúng chủ đề người dùng yêu cầu và chọn bố cục hình ảnh phù hợp nhất.
 Trả về JSON hợp lệ theo cấu trúc:
 {
-  "theLoai": "cong-nghe" | "kien-thuc" | "ke-chuyen" | "quang-cao",
+  "theLoai": "kien-thuc" | "ke-chuyen" | "quang-cao" | "cong-nghe",
+  "kieuBoCuc": "hoat-hinh-2d" | "dien-anh-full" | "quang-cao-reels" | "cong-nghe-step" | "chill-lofi",
   "tieuDeChinh": "Tiêu đề video cụ thể, hấp dẫn (tối đa 52 ký tự)",
   "tenKenh": "NHÃN CHỦ ĐỀ IN HOA",
   "loiThoai": "Lời thuyết minh tiếng Việt chi tiết, mạch lạc, khớp từng cảnh từ Cảnh 1 đến Cảnh 5 (khoảng ${targetWords} từ).",
@@ -423,16 +586,18 @@ Trả về JSON hợp lệ theo cấu trúc:
       "nhanPhu": "CẢNH 01 // TỪ KHÓA",
       "tieuDeCanh": "1. Tiêu đề cụ thể của Cảnh 1",
       "noiDungCanh": "Mô tả cụ thể nội dung diễn ra trong Cảnh 1.",
-      "moTaHinhAnhEn": "2d flat vector cartoon illustration of [specific scene 1 action in English]",
+      "moTaHinhAnhEn": "Specific English visual search keywords describing the exact objects/action in Scene 1 (e.g., 'developer cloning github repository on laptop cartoon' or 'whipping golden egg yolk cream hanoi egg coffee')",
       "loaiMinhHoa2D": "illustration" | "flowchart" | "terminal" | "progress" | "checklist" | "cards",
       "duLieuMinhHoa": ["Ý chính ngắn gọn 1 bằng tiếng Việt hiển thị trên màn hình (TUYỆT ĐỐI KHÔNG ghi tên file .png/.mp4)", "Ý chính ngắn gọn 2 bằng tiếng Việt", "Ý chính ngắn gọn 3 bằng tiếng Việt"]
     }
   ]
 }
-Yêu cầu bắt buộc:
-- Phải có đúng 5 phân cảnh trong cacPhanCanh (Cảnh 1, Cảnh 2, Cảnh 3, Cảnh 4, Cảnh 5).
-- Cả 5 phân cảnh đều phải viết nội dung thực chất, bám sát chủ đề "${p}", tuyệt đối không lặp lại câu chữ chung chung.
-- Mảng duLieuMinhHoa phải là 3 câu/cụm từ tiếng Việt ngắn gọn tóm tắt nội dung cảnh (không được viết tên file ảnh hay video).`;
+Quy tắc chọn kieuBoCuc:
+- Nếu người dùng yêu cầu "hoạt hình 2d", "2d động", "dễ hiểu, trực quan", "minh họa": BẮT BUỘC chọn "hoat-hinh-2d".
+- Nếu là ẩm thực, nấu ăn, pha chế, du lịch, lịch sử, kể chuyện, điện ảnh: chọn "dien-anh-full".
+- Nếu là quảng cáo, bán hàng, TikTok/Reels sôi động: chọn "quang-cao-reels".
+- Nếu là tâm sự, lofi, podcast, thư giãn: chọn "chill-lofi".
+- Phải có đúng 5 phân cảnh trong cacPhanCanh, mỗi cảnh có moTaHinhAnhEn bằng tiếng Anh thật khác biệt để tìm/vẽ 5 bức ảnh khác nhau.`;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 60000);
@@ -477,13 +642,20 @@ Yêu cầu bắt buộc:
             "checklist",
             "cards",
           ];
+          const validLayouts = [
+            "hoat-hinh-2d",
+            "dien-anh-full",
+            "quang-cao-reels",
+            "cong-nghe-step",
+            "chill-lofi",
+          ];
           const sanitizedScenes = aiData.cacPhanCanh.slice(0, 8).map((sc, i) => {
             if (typeof sc === "string") {
               return {
                 nhanPhu: `CẢNH 0${i + 1}`,
                 tieuDeCanh: `${i + 1}. ${sc.slice(0, 48)}`,
                 noiDungCanh: sc,
-                moTaHinhAnhEn: `2d flat cartoon illustration of ${sc}`,
+                moTaHinhAnhEn: sc,
                 loaiMinhHoa2D: validTypes[i % validTypes.length],
                 duLieuMinhHoa: [sc],
               };
@@ -510,12 +682,11 @@ Yêu cầu bắt buộc:
                   ? fallbackPhrases
                   : [String(sc.tieuDeCanh || `Nội dung phân cảnh ${i + 1}`)];
             return {
-              nhanPhu: String(sc.nhanPhu || `CẢNH 0${i + 1} // BƯỚC ${i + 1}`),
+              nhanPhu: String(sc.nhanPhu || `CẢNH 0${i + 1}`),
               tieuDeCanh: String(sc.tieuDeCanh || `${i + 1}. Phân cảnh ${i + 1}`),
               noiDungCanh: String(sc.noiDungCanh || ""),
               moTaHinhAnhEn: String(
-                sc.moTaHinhAnhEn ||
-                  `2d flat vector cartoon illustration of ${sc.tieuDeCanh}`,
+                sc.moTaHinhAnhEn || `${aiData.tieuDeChinh} ${sc.tieuDeCanh}`,
               ),
               loaiMinhHoa2D: validTypes.includes(sc.loaiMinhHoa2D)
                 ? sc.loaiMinhHoa2D
@@ -524,6 +695,14 @@ Yêu cầu bắt buộc:
             };
           });
 
+          // If user prompt explicitly asked for "hoạt hình 2d", honor it over generic AI layout
+          const chosenLayout =
+            lower.includes("hoạt hình 2d") || lower.includes("2d động")
+              ? "hoat-hinh-2d"
+              : validLayouts.includes(aiData.kieuBoCuc)
+                ? aiData.kieuBoCuc
+                : baseProps.kieuBoCuc;
+
           const mergedProps = {
             ...baseProps,
             theLoai: ["cong-nghe", "kien-thuc", "ke-chuyen", "quang-cao"].includes(
@@ -531,20 +710,19 @@ Yêu cầu bắt buộc:
             )
               ? aiData.theLoai
               : baseProps.theLoai,
+            kieuBoCuc: chosenLayout,
             tieuDeChinh: String(aiData.tieuDeChinh),
-            tenKenh: String(
-              aiData.tenKenh || "CHILL ARGON STUDIO · AI STORYBOARD",
-            ),
+            tenKenh: String(aiData.tenKenh || "CHILL ARGON STUDIO"),
             loiThoai: String(aiData.loiThoai),
             cacPhanCanh: sanitizedScenes,
           };
 
-          await attachSceneIllustrations(mergedProps, wantCloudImages);
+          await attachSceneIllustrations(mergedProps, wantAiDiffusion, 0);
 
           return {
             compositionId: "UniversalVideo",
             giongDoc,
-            summary: `✨ AI đã sáng tạo mới hoàn toàn kịch bản "${mergedProps.tieuDeChinh}" (${sanitizedScenes.length} phân cảnh + ${sanitizedScenes.length} hình minh họa 2D riêng · ~${mergedProps.thoiLuongGiay}s)!`,
+            summary: `✨ Đã tạo kịch bản "${mergedProps.tieuDeChinh}" · Bố cục [${mergedProps.kieuBoCuc}] · ${sanitizedScenes.length} cảnh kèm 5 tranh minh họa HD riêng biệt (~${mergedProps.thoiLuongGiay}s)!`,
             props: mergedProps,
           };
         }
@@ -554,11 +732,11 @@ Yêu cầu bắt buộc:
     console.warn("AI Cloud fallback:", err.message);
   }
 
-  await attachSceneIllustrations(baseProps, false);
+  await attachSceneIllustrations(baseProps, wantAiDiffusion, 0);
   return {
     compositionId: "UniversalVideo",
     giongDoc,
-    summary: `Đã tạo kịch bản "${baseProps.tieuDeChinh}" (${baseProps.cacPhanCanh.length} phân cảnh + hình minh họa 2D riêng · ~${baseProps.thoiLuongGiay}s)`,
+    summary: `Đã tạo kịch bản "${baseProps.tieuDeChinh}" · Bố cục [${baseProps.kieuBoCuc}] (${baseProps.cacPhanCanh.length} phân cảnh + hình minh họa HD · ~${baseProps.thoiLuongGiay}s)`,
     props: baseProps,
   };
 }
@@ -602,11 +780,10 @@ async function startRenderProcess(
   props,
   giongDoc = "vi-VN-HoaiMyNeural",
 ) {
-  // Ensure every scene has its own generated 2D illustration before rendering
   if (compositionId === "UniversalVideo" && Array.isArray(props.cacPhanCanh)) {
     const missingImg = props.cacPhanCanh.some((s) => !s.hinhAnhCanh);
     if (missingImg) {
-      await attachSceneIllustrations(props, false);
+      await attachSceneIllustrations(props, false, 0);
     }
   }
 
@@ -632,61 +809,47 @@ async function startRenderProcess(
     if (fs.existsSync(fullOutPath)) {
       fs.unlinkSync(fullOutPath);
     }
-  } catch {
-    // ignore if locked
-  }
+  } catch {}
 
   renderJob = {
     isRendering: true,
     compositionId,
-    progress: 6,
-    stage: props.batGiongDoc
-      ? "sound: Đang tạo giọng đọc AI Tiếng Việt (msedge-tts)..."
-      : "design: Đang chuẩn bị hình ảnh minh họa 2D cho từng phân cảnh...",
+    progress: 4,
+    stage: "brief → sound: Đang thu âm giọng đọc AI Tiếng Việt...",
     lastError: null,
-    outputUrl: `/out/${outputFileName}`,
+    outputUrl: null,
     updatedAt: Date.now(),
   };
 
-  // Step 1: Synthesize Vietnamese TTS ONLY if batGiongDoc === true
-  if (props.batGiongDoc && props.loiThoai) {
+  if (props.batGiongDoc && props.loiThoai && props.loiThoai.trim().length > 0) {
     try {
-      execFileSync(
-        "node",
-        [
-          path.join(__dirname, "scripts", "generate-tts.cjs"),
-          props.loiThoai,
-          giongDoc || "vi-VN-HoaiMyNeural",
-        ],
-        { cwd: __dirname, timeout: 25000 },
+      const tts = new MsEdgeTTS();
+      await tts.setMetadata(
+        giongDoc || "vi-VN-HoaiMyNeural",
+        OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3,
       );
+      const voiceFile = path.join(PUBLIC_DIR, "voiceover.mp3");
+      const { audioStream } = tts.toStream(props.loiThoai.trim());
+      await new Promise((resolve, reject) => {
+        const writeStream = fs.createWriteStream(voiceFile);
+        audioStream.pipe(writeStream);
+        writeStream.on("finish", resolve);
+        writeStream.on("error", reject);
+        audioStream.on("error", reject);
+      });
 
-      if (compositionId === "UniversalVideo") {
-        const probeOut = execFileSync(
-          "npx.cmd",
-          [
-            "remotion",
-            "ffprobe",
-            "-v",
-            "error",
-            "-show_entries",
-            "format=duration",
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
-            "public/voiceover.mp3",
-          ],
-          { cwd: __dirname, shell: true, encoding: "utf8" },
-        ).trim();
-        const ttsSec = parseFloat(probeOut);
-        if (!Number.isNaN(ttsSec) && ttsSec > 3) {
-          props.thoiLuongGiay = Math.max(
-            props.thoiLuongGiay || 15,
-            Math.ceil(ttsSec + 2),
-          );
-        }
+      const voiceBytes = fs.statSync(voiceFile).size;
+      const actualVoiceSeconds = Math.ceil(voiceBytes / 12000) + 2;
+      if (
+        compositionId === "UniversalVideo" &&
+        actualVoiceSeconds > (props.thoiLuongGiay || 15)
+      ) {
+        props.thoiLuongGiay = Math.min(600, actualVoiceSeconds);
       }
-    } catch (e) {
-      console.error("TTS warning:", e.message);
+      renderJob.progress = 12;
+      renderJob.stage = `sound ✓ Đã thu âm giọng đọc AI (${actualVoiceSeconds}s). Đang dựng bố cục [${props.kieuBoCuc || "hoat-hinh-2d"}]...`;
+    } catch (ttsErr) {
+      console.error("TTS warning:", ttsErr);
     }
   }
 
@@ -694,8 +857,7 @@ async function startRenderProcess(
   fs.writeFileSync(propsFilePath, JSON.stringify(props), "utf8");
 
   renderJob.progress = 14;
-  renderJob.stage =
-    "brief → design → animate: Đang đóng gói hình ảnh 2D & chuyển động các phân cảnh...";
+  renderJob.stage = `design → animate: Đang đóng gói bố cục [${props.kieuBoCuc || "hoat-hinh-2d"}] & hình ảnh các cảnh...`;
 
   const child = spawn(
     "npx.cmd",
@@ -722,7 +884,7 @@ async function startRenderProcess(
         renderJob.progress,
         14 + Math.round(pct * 0.16),
       );
-      renderJob.stage = `build: Đang đóng gói ${props.cacPhanCanh ? props.cacPhanCanh.length + " phân cảnh 2D" : "cảnh 3D"} (${pct}%)...`;
+      renderJob.stage = `build: Đang đóng gói ${props.cacPhanCanh ? props.cacPhanCanh.length + " phân cảnh" : "cảnh 3D"} (${pct}%)...`;
     }
     const renderMatch = text.match(/Rendered\s+(\d+)\/(\d+)/);
     if (renderMatch) {
@@ -746,7 +908,7 @@ async function startRenderProcess(
     if (code === 0) {
       renderJob.isRendering = false;
       renderJob.progress = 100;
-      renderJob.stage = `ship ✓ Hoàn tất! Đã xuất file ${outputFileName} (${props.thoiLuongGiay || 6}s · Giọng đọc: ${props.batGiongDoc ? "BẬT" : "TẮT"} · Phụ đề: ${props.batPhuDe !== false ? "BẬT" : "TẮT"}).`;
+      renderJob.stage = `ship ✓ Hoàn tất! Đã xuất file ${outputFileName} (Bố cục: ${props.kieuBoCuc || "2D"} · ${props.thoiLuongGiay || 6}s · Thoại: ${props.batGiongDoc ? "BẬT" : "TẮT"} · Sub: ${props.batPhuDe !== false ? "BẬT" : "TẮT"}).`;
       renderJob.outputUrl = `/out/${outputFileName}?t=${Date.now()}`;
       renderJob.updatedAt = Date.now();
     } else {
@@ -756,6 +918,8 @@ async function startRenderProcess(
     }
   });
 }
+
+let globalVariationCounter = 0;
 
 const server = http.createServer((req, res) => {
   const urlObj = new URL(req.url, `http://localhost:${PORT}`);
@@ -791,9 +955,11 @@ const server = http.createServer((req, res) => {
             ? "image/jpeg"
             : ext === ".png"
               ? "image/png"
-              : ext === ".ico"
-                ? "image/x-icon"
-                : "application/octet-stream";
+              : ext === ".webp"
+                ? "image/webp"
+                : ext === ".ico"
+                  ? "image/x-icon"
+                  : "application/octet-stream";
     serveStaticFile(res, safePath, mime);
     return;
   }
@@ -818,7 +984,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Endpoint to regenerate 2D illustrations (either fast SVG vector or Cloud AI image)
+  // Regenerate all scene images (picks a new set of unseen HD illustrations or runs AI diffusion)
   if (req.method === "POST" && pathname === "/api/regenerate-images") {
     let body = "";
     req.on("data", (chunk) => {
@@ -828,9 +994,65 @@ const server = http.createServer((req, res) => {
       try {
         const payload = JSON.parse(body);
         const props = payload.props || {};
-        await attachSceneIllustrations(props, payload.useCloudImage === true);
+        globalVariationCounter += 1;
+        await attachSceneIllustrations(
+          props,
+          payload.useCloudImage === true,
+          globalVariationCounter,
+        );
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         res.end(JSON.stringify({ ok: true, props }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err) }));
+      }
+    });
+    return;
+  }
+
+  // Regenerate or replace a SINGLE scene's image (Swap HD image or AI Diffusion for 1 scene)
+  if (req.method === "POST" && pathname === "/api/scene-image") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", async () => {
+      try {
+        const payload = JSON.parse(body);
+        const scene = payload.scene || {};
+        const idx = Number(payload.sceneIndex || 0);
+        const props = payload.props || {};
+        const useAi = payload.mode === "ai";
+        globalVariationCounter += 1;
+
+        const styleQuery = buildStyleQueryForScene(scene, idx, props);
+        const stamp = Date.now();
+        let savedRelPath = null;
+
+        if (useAi) {
+          const aiImg = await tryGenerateAiDiffusionImage(styleQuery, stamp + idx);
+          if (aiImg) {
+            const fileName = `scene-${stamp}-${idx + 1}.${aiImg.ext}`;
+            fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), aiImg.buf);
+            savedRelPath = `scene-images/${fileName}`;
+          }
+        }
+
+        if (!savedRelPath) {
+          const found = await fetchHighResVisualFromSearch(
+            styleQuery,
+            new Set(),
+            globalVariationCounter + idx,
+          );
+          if (found) {
+            const fileName = `scene-${stamp}-${idx + 1}.${found.ext}`;
+            fs.writeFileSync(path.join(SCENE_IMG_DIR, fileName), found.buf);
+            savedRelPath = `scene-images/${fileName}`;
+          }
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ ok: true, hinhAnhCanh: savedRelPath }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: String(err) }));

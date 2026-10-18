@@ -720,20 +720,31 @@
         />
       </div>
 
+      <div class="field">
+        <label>🎭 Kiểu Dựng & Bố Cục Video (5 Dạng Video Khác Nhau)</label>
+        <select id="uni_kieuBoCuc" class="input-select" style="border-color: var(--accent); font-weight: 800;">
+          <option value="hoat-hinh-2d">🎨 1. Hoạt Hình 2D Động & Khung Tranh Lớn (Cartoon 2D)</option>
+          <option value="dien-anh-full">🎬 2. Điện Ảnh Tràn Viền 1080×1920 (Ken Burns Fullscreen)</option>
+          <option value="quang-cao-reels">⚡ 3. Quảng Cáo Sôi Động TikTok / Reels (Kinetic Pop)</option>
+          <option value="chill-lofi">🌙 4. Kể Chuyện Lofi / Đĩa Than Xoay & Khung Polaroid</option>
+          <option value="cong-nghe-step">💻 5. Hướng Dẫn Từng Bước & Công Nghệ (Step Tracker)</option>
+        </select>
+      </div>
+
       <div class="field-row-2">
         <div class="field">
-          <label>Phong cách chủ đạo</label>
+          <label>Thể loại nội dung</label>
           <select id="uni_theLoai" class="input-select">
-            <option value="cong-nghe">💻 Hướng Dẫn / Quy Trình</option>
             <option value="kien-thuc">💡 Kiến Thức / Giải Thích</option>
-            <option value="ke-chuyen">📖 Kể Chuyện / Podcast</option>
-            <option value="quang-cao">🚀 Giới Thiệu / Promo</option>
+            <option value="ke-chuyen">📖 Kể Chuyện / Ẩm Thực / Du Lịch</option>
+            <option value="quang-cao">🚀 Giới Thiệu / Quảng Cáo</option>
+            <option value="cong-nghe">💻 Công Nghệ / Quy Trình</option>
           </select>
         </div>
         <div class="field">
           <label>Chế độ kết xuất</label>
           <select id="uni_hienThi3D" class="input-select">
-            <option value="false">🎨 Hoạt Hình 2D + Ảnh Cảnh</option>
+            <option value="false">🎨 Hoạt Hình 2D + Ảnh Cảnh HD</option>
             <option value="true">🧊 Không Gian Khối 3D</option>
           </select>
         </div>
@@ -741,22 +752,22 @@
 
       <div class="field">
         <label>Tên Kênh / Dòng Nhãn Trên Cùng</label>
-        <input type="text" id="uni_tenKenh" class="input-text" value="CHILL ARGON STUDIO · 2D MOTION" />
+        <input type="text" id="uni_tenKenh" class="input-text" value="CHILL ARGON STUDIO" />
       </div>
 
       <div class="section-divider">🎨 Bảng Màu Đồ Họa</div>
       <div class="color-row">
         <div class="color-box">
           <span>Màu Nhấn Chính</span>
-          <input type="color" id="uni_mauChuDao" value="#d4ff47" />
+          <input type="color" id="uni_mauChuDao" value="#38bdf8" />
         </div>
         <div class="color-box">
           <span>Màu Phụ 2D</span>
-          <input type="color" id="uni_mauPhu" value="#00f0ff" />
+          <input type="color" id="uni_mauPhu" value="#fbbf24" />
         </div>
         <div class="color-box">
           <span>Màu Nền</span>
-          <input type="color" id="uni_mauNen" value="#0b0f19" />
+          <input type="color" id="uni_mauNen" value="#0f172a" />
         </div>
       </div>
 
@@ -779,7 +790,7 @@
           <div class="empty-icon">🎬</div>
           <h3 style="font-size: 16px; color: #fff;">Dự Án Sáng Tạo Mới Đang Sẵn Sàng</h3>
           <p style="font-size: 13px; color: var(--muted); line-height: 1.5;">
-            Nhập ý tưởng của bạn ở khung trên cùng và bấm <b>"🪄 AI Viết Kịch Bản & Vẽ Các Cảnh"</b> hoặc <b>"🚀 AI Viết Kịch Bản & Xuất MP4 Ngay"</b>. Video mới của bạn sẽ xuất hiện tại đây sau khi kết xuất!
+            Nhập ý tưởng của bạn ở khung trên cùng và bấm <b>"🪄 AI Viết Kịch Bản & Vẽ Các Cảnh"</b> hoặc <b>"🚀 AI Viết Kịch Bản & Xuất MP4 Ngay"</b>. Hệ thống sẽ tự động chọn đúng 1 trong <b>5 dạng bố cục video</b> và tải/vẽ 5 bức ảnh HD riêng biệt cho từng cảnh!
           </p>
         </div>
 
@@ -818,7 +829,7 @@
       <div class="panel-header">
         <span class="panel-title">3. Kịch Bản & Hình Ảnh Từng Phân Cảnh</span>
         <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11.5px;" onclick="regenerateAllSceneImages()">
-          🎨 Vẽ Lại Ảnh Các Cảnh
+          🔄 Đổi Bộ Ảnh Toàn Video
         </button>
       </div>
 
@@ -917,14 +928,27 @@
         <div class="scene-item">
           <div class="scene-item-header">
             <span>🎬 PHÂN CẢNH #${idx + 1}</span>
-            ${universalScenes.length > 1 ? `<button type="button" class="btn-mini" onclick="removeUniversalScene(${idx})">✕ Xóa cảnh</button>` : ''}
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn-mini" style="background:#172554; color:#38bdf8; border-color:#38bdf8;" onclick="swapSingleSceneImage(${idx}, 'swap')">🔄 Đổi Ảnh HD Khác</button>
+              <button type="button" class="btn-mini" style="background:#1e1b4b; color:#d4ff47; border-color:#d4ff47;" onclick="swapSingleSceneImage(${idx}, 'ai')">✨ AI Vẽ Mới (FLUX)</button>
+              ${universalScenes.length > 1 ? `<button type="button" class="btn-mini" onclick="removeUniversalScene(${idx})">✕ Xóa</button>` : ''}
+            </div>
           </div>
 
           ${imgSrc ? `
-            <div class="scene-thumb-wrap" title="Hình ảnh minh họa 2D riêng của Phân cảnh #${idx + 1}">
-              <img src="${imgSrc}" alt="Minh họa cảnh ${idx + 1}" />
+            <div class="scene-thumb-wrap" style="height: 155px;" title="Hình ảnh minh họa riêng của Phân cảnh #${idx + 1}">
+              <img id="sceneImg_${idx}" src="${imgSrc}" alt="Minh họa cảnh ${idx + 1}" />
             </div>
           ` : ''}
+
+          <input
+            type="text"
+            class="input-text"
+            style="font-size: 11.5px; color: #38bdf8; border-color: #1e3a8a;"
+            placeholder="Từ khóa tìm/vẽ ảnh cho cảnh này (Tiếng Anh hoặc Tiếng Việt)..."
+            value="${escapeHtml(scene.moTaHinhAnhEn || '')}"
+            oninput="universalScenes[${idx}].moTaHinhAnhEn = this.value"
+          />
 
           <div class="field-row-2">
             <input
@@ -934,25 +958,14 @@
               value="${escapeHtml(scene.nhanPhu || '')}"
               oninput="universalScenes[${idx}].nhanPhu = this.value"
             />
-            <select
-              class="input-select"
-              onchange="universalScenes[${idx}].loaiMinhHoa2D = this.value"
-            >
-              <option value="illustration" ${scene.loaiMinhHoa2D === 'illustration' ? 'selected' : ''}>🖼️ Ảnh Minh Họa 2D + Điểm Nhấn</option>
-              <option value="flowchart" ${scene.loaiMinhHoa2D === 'flowchart' ? 'selected' : ''}>🔀 Sơ đồ Flowchart 2D</option>
-              <option value="terminal" ${scene.loaiMinhHoa2D === 'terminal' ? 'selected' : ''}>💻 Cửa sổ Lệnh Terminal</option>
-              <option value="progress" ${scene.loaiMinhHoa2D === 'progress' ? 'selected' : ''}>📊 Thanh Tiến Trình %</option>
-              <option value="checklist" ${scene.loaiMinhHoa2D === 'checklist' ? 'selected' : ''}>✅ Danh Sách Checklist</option>
-              <option value="cards" ${scene.loaiMinhHoa2D === 'cards' ? 'selected' : ''}>🗂️ Thẻ Điểm Nhấn 2D</option>
-            </select>
+            <input
+              type="text"
+              class="input-text"
+              placeholder="Tiêu đề phân cảnh..."
+              value="${escapeHtml(scene.tieuDeCanh || '')}"
+              oninput="universalScenes[${idx}].tieuDeCanh = this.value"
+            />
           </div>
-          <input
-            type="text"
-            class="input-text"
-            placeholder="Tiêu đề phân cảnh..."
-            value="${escapeHtml(scene.tieuDeCanh || '')}"
-            oninput="universalScenes[${idx}].tieuDeCanh = this.value"
-          />
           <input
             type="text"
             class="input-text"
@@ -962,8 +975,8 @@
           />
           <textarea
             class="input-area"
-            style="min-height: 56px; font-size: 12.5px;"
-            placeholder="Mỗi dòng là 1 ý minh họa động trong phân cảnh này..."
+            style="min-height: 52px; font-size: 12.5px;"
+            placeholder="Mỗi dòng là 1 ý chính hiển thị trên màn hình..."
             oninput="universalScenes[${idx}].duLieuMinhHoa = this.value.split('\\n').filter(Boolean)"
           >${escapeHtml((scene.duLieuMinhHoa || []).join('\n'))}</textarea>
         </div>
@@ -971,12 +984,38 @@
       }).join('');
     }
 
+    async function swapSingleSceneImage(idx, mode) {
+      const scene = universalScenes[idx];
+      if (!scene) return;
+      const props = collectCurrentProps();
+      const fb = document.getElementById('promptFeedback');
+      fb.style.display = 'block';
+      fb.style.color = '#d4ff47';
+      fb.innerText = mode === 'ai'
+        ? `⏳ Đang gọi AI FLUX vẽ mới riêng cho Phân cảnh #${idx + 1}...`
+        : `🔄 Đang đổi ảnh minh họa HD mới cho Phân cảnh #${idx + 1}...`;
+
+      const res = await fetch('/api/scene-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scene, sceneIndex: idx, props, mode })
+      });
+      const data = await res.json();
+      if (data.ok && data.hinhAnhCanh) {
+        universalScenes[idx].hinhAnhCanh = data.hinhAnhCanh;
+        renderUniversalScenesEditor();
+        fb.style.color = '#4ade80';
+        fb.innerText = `✓ Đã cập nhật ảnh mới cho Phân cảnh #${idx + 1}!`;
+      }
+    }
+
     function addUniversalScene() {
       const nextNum = universalScenes.length + 1;
       universalScenes.push({
-        nhanPhu: `CẢNH 0${nextNum} // NỘI DUNG`,
+        nhanPhu: `CẢNH 0${nextNum}`,
         tieuDeCanh: `${nextNum}. Tiêu đề phân cảnh ${nextNum}`,
         noiDungCanh: "Mô tả nội dung diễn ra trong phân cảnh này.",
+        moTaHinhAnhEn: `2d flat vector cartoon illustration scene ${nextNum}`,
         loaiMinhHoa2D: "illustration",
         duLieuMinhHoa: [
           `Điểm nhấn chính của phân cảnh ${nextNum}`,
@@ -996,6 +1035,7 @@
       const kieuNhacNen = document.getElementById('uni_kieuNhacNen').value;
       return {
         theLoai: document.getElementById('uni_theLoai').value,
+        kieuBoCuc: document.getElementById('uni_kieuBoCuc').value,
         tieuDeChinh: document.getElementById('uni_tieuDeChinh').value.trim() || 'Video Sáng Tạo Mới',
         tenKenh: document.getElementById('uni_tenKenh').value.trim() || 'CHILL ARGON STUDIO',
         loiThoai: document.getElementById('uni_loiThoai').value.trim(),
@@ -1019,7 +1059,7 @@
       const fb = document.getElementById('promptFeedback');
       fb.style.display = 'block';
       fb.style.color = '#d4ff47';
-      fb.innerText = '🎨 Đang vẽ lại hình ảnh minh họa 2D riêng cho từng phân cảnh...';
+      fb.innerText = '🎨 Đang tải/vẽ bộ hình ảnh HD mới cho từng phân cảnh...';
 
       const res = await fetch('/api/regenerate-images', {
         method: 'POST',
@@ -1031,17 +1071,18 @@
         universalScenes = data.props.cacPhanCanh;
         renderUniversalScenesEditor();
         fb.style.color = '#4ade80';
-        fb.innerText = '✓ Đã cập nhật hình ảnh minh họa 2D mới cho toàn bộ ' + universalScenes.length + ' phân cảnh!';
+        fb.innerText = '✓ Đã cập nhật bộ hình ảnh HD mới cho toàn bộ ' + universalScenes.length + ' phân cảnh!';
       }
     }
 
     function populateFormFromProps(props, giongDoc) {
-      document.getElementById('uni_theLoai').value = props.theLoai || 'cong-nghe';
+      document.getElementById('uni_theLoai').value = props.theLoai || 'kien-thuc';
+      document.getElementById('uni_kieuBoCuc').value = props.kieuBoCuc || 'hoat-hinh-2d';
       document.getElementById('uni_hienThi3D').value = String(props.hienThi3D === true);
       document.getElementById('uni_thoiLuongGiay').value = props.thoiLuongGiay || 60;
       updateDurationLabel(props.thoiLuongGiay || 60);
       document.getElementById('uni_tieuDeChinh').value = props.tieuDeChinh || '';
-      document.getElementById('uni_tenKenh').value = props.tenKenh || 'CHILL ARGON STUDIO · 2D MOTION';
+      document.getElementById('uni_tenKenh').value = props.tenKenh || 'CHILL ARGON STUDIO';
       document.getElementById('uni_loiThoai').value = props.loiThoai || '';
 
       const voiceOn = props.batGiongDoc !== false;
@@ -1052,9 +1093,9 @@
       document.getElementById('cardToggleSub').classList.toggle('on', subOn);
 
       document.getElementById('uni_kieuNhacNen').value = props.kieuNhacNen || 'chill';
-      document.getElementById('uni_mauChuDao').value = props.mauChuDao || '#d4ff47';
-      document.getElementById('uni_mauPhu').value = props.mauPhu || '#00f0ff';
-      document.getElementById('uni_mauNen').value = props.mauNen || '#0b0f19';
+      document.getElementById('uni_mauChuDao').value = props.mauChuDao || '#38bdf8';
+      document.getElementById('uni_mauPhu').value = props.mauPhu || '#fbbf24';
+      document.getElementById('uni_mauNen').value = props.mauNen || '#0f172a';
       if (giongDoc) document.getElementById('uni_giongDoc').value = giongDoc;
 
       universalScenes = Array.isArray(props.cacPhanCanh)
