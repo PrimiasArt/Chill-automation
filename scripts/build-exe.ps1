@@ -1,9 +1,9 @@
 Add-Type -AssemblyName System.Drawing
 
 $rootDir = Split-Path -Parent $PSScriptRoot
-$icoPath = Join-Path $rootDir "public\chill-studio.ico"
+$icoPath = Join-Path $rootDir "public\chill-argon-studio.ico"
 $csPath = Join-Path $rootDir "scripts\Launcher.cs"
-$exePath = Join-Path $rootDir "ChillStudio.exe"
+$exePath = Join-Path $rootDir "Chill Argon Studio.exe"
 
 function New-IconBitmap([int]$size) {
     $bmp = New-Object System.Drawing.Bitmap($size, $size, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)

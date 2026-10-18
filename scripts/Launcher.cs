@@ -28,7 +28,7 @@ namespace ChillAutomation
         {
             rootDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            this.Text = "Chill Automation Studio 3.0 — AI Video Engine";
+            this.Text = "Chill Argon Studio — AI Video Engine";
             this.Size = new Size(560, 470);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -39,7 +39,7 @@ namespace ChillAutomation
 
             try
             {
-                string icoPath = Path.Combine(rootDir, "public", "chill-studio.ico");
+                string icoPath = Path.Combine(rootDir, "public", "chill-argon-studio.ico");
                 if (File.Exists(icoPath))
                 {
                     this.Icon = new Icon(icoPath);
@@ -98,7 +98,7 @@ namespace ChillAutomation
 
             Label lblTitle = new Label
             {
-                Text = "CHILL AUTOMATION STUDIO 3.0",
+                Text = "CHILL ARGON STUDIO",
                 Font = new Font("Segoe UI", 13.5f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(212, 255, 71),
                 Location = new Point(78, 16),
@@ -389,15 +389,15 @@ namespace ChillAutomation
             try
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                string shortcutPath = Path.Combine(desktop, "Chill Automation Studio.lnk");
+                string shortcutPath = Path.Combine(desktop, "Chill Argon Studio.lnk");
                 string exePath = Application.ExecutablePath;
-                string icoPath = Path.Combine(rootDir, "public", "chill-studio.ico");
+                string icoPath = Path.Combine(rootDir, "public", "chill-argon-studio.ico");
 
                 string vbs = "Set oWS = WScript.CreateObject(\"WScript.Shell\")\r\n" +
                              "Set oLink = oWS.CreateShortcut(\"" + shortcutPath + "\")\r\n" +
                              "oLink.TargetPath = \"" + exePath + "\"\r\n" +
                              "oLink.WorkingDirectory = \"" + rootDir + "\"\r\n" +
-                             "oLink.Description = \"Chill Automation Studio 3.0 - AI Video Engine\"\r\n" +
+                             "oLink.Description = \"Chill Argon Studio - AI Video Engine\"\r\n" +
                              (File.Exists(icoPath) ? "oLink.IconLocation = \"" + icoPath + "\"\r\n" : "") +
                              "oLink.Save\r\n";
 
@@ -410,10 +410,10 @@ namespace ChillAutomation
                 }
                 File.Delete(tempVbs);
 
-                AppendLog("✓ Đã tạo biểu tượng 'Chill Automation Studio' ngoài màn hình Desktop!");
+                AppendLog("✓ Đã tạo biểu tượng 'Chill Argon Studio' ngoài màn hình Desktop!");
                 MessageBox.Show(
-                    "Đã tạo biểu tượng 'Chill Automation Studio' có Logo ngoài màn hình Desktop thành công!",
-                    "Chill Automation Studio",
+                    "Đã tạo biểu tượng 'Chill Argon Studio' có Logo ngoài màn hình Desktop thành công!",
+                    "Chill Argon Studio",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
                 );

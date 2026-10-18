@@ -1,4 +1,4 @@
-# 🎬 Chill Automation Studio 3.0 — Hệ Thống Dựng Video AI Đa Năng (2D & 3D)
+# 🎬 Chill Argon Studio — Hệ Thống Dựng Video AI Đa Năng (2D & 3D)
 
 Hệ thống tự động dựng video đa thể loại (Hướng dẫn cài đặt, Chia sẻ kiến thức, Kể chuyện, Quảng cáo 2D & Hoạt hình nhân vật 3D) từ A đến Z bằng Tiếng Việt với **30 Repo công nghệ** và **21 Agent Skills** tích hợp sẵn.
 
@@ -13,7 +13,7 @@ cd Chill-automation
 ```
 
 ### Bước 2: Cài đặt & Mở Bàn Làm Việc
-- **Trên Windows (Khuyên dùng):** Nháy đúp vào ứng dụng **`ChillStudio.exe`** (có sẵn Logo Neon & giao diện điều khiển riêng, tự động kiểm tra/cài đặt toàn bộ thư viện `node_modules` và mở trình duyệt Web, đồng thời có nút **📌 Tạo Icon Ra Màn Hình Desktop**).
+- **Trên Windows (Khuyên dùng):** Nháy đúp vào ứng dụng **`Chill Argon Studio.exe`** (có sẵn Logo Neon & giao diện điều khiển riêng, tự động kiểm tra/cài đặt toàn bộ thư viện `node_modules` và mở trình duyệt Web, đồng thời có nút **📌 Tạo Icon Ra Màn Hình Desktop**).
 - **Hoặc chạy bằng dòng lệnh (Windows / macOS / Linux):**
   ```bash
   npm install --legacy-peer-deps
